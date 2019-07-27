@@ -1,5 +1,8 @@
 package com.joshuahalvorson.datenight.view.fragment
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,18 +11,27 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.location.LocationServices
 import com.joshuahalvorson.datenight.App
 import com.joshuahalvorson.datenight.R
+import com.joshuahalvorson.datenight.model.Restaurants
 import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModel
 import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModelFactory
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_random_restaurant.*
+import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
+import kotlin.random.Random
 
 class RandomRestaurantFragment : Fragment() {
 
     @Inject
     lateinit var zomatoViewModelFactory: ZomatoViewModelFactory
     private lateinit var zomatoViewModel: ZomatoViewModel
+    private lateinit var restaurantsList: List<Restaurants>
+    private lateinit var deviceLocation: Location
+
+    private var lastIndex = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_random_restaurant, container, false)
@@ -29,11 +41,74 @@ class RandomRestaurantFragment : Fragment() {
         App.app.zomatoComponent.inject(this)
         zomatoViewModel = ViewModelProviders.of(this, zomatoViewModelFactory).get(ZomatoViewModel::class.java)
 
-        zomatoViewModel.getLocalRestaurants(47.0, 41.0, 1, 1).observe(this, Observer { restaurantResponse ->
-            restaurantResponse?.let {
-                Log.i("restaurantResponse", it.restaurants?.get(0)?.restaurant?.name)
-                restaurant_name.text = it.restaurants?.get(0)?.restaurant?.name
+        getLocation()
+
+        new_restaurant_button.setOnClickListener {
+            displayRestaurant(restaurantsList)
+        }
+
+    }
+
+    private fun getRestaurants() {
+        zomatoViewModel.getLocalRestaurants(deviceLocation.latitude, deviceLocation.longitude, 50, 1)
+            .observe(this, Observer {
+                it?.let { restaurantResponse ->
+                    Log.i("restaurantResponse", " ${restaurantResponse.restaurants?.size.toString()} restaurants")
+                    restaurantResponse.restaurants?.let { list ->
+                        restaurantsList = list
+                        displayRestaurant(restaurantsList)
+                    }
+                }
+            })
+    }
+
+    private fun displayRestaurant(list: List<Restaurants>) {
+        val index = Random.nextInt(0, list.size - 1)
+        if (lastIndex != index) {
+            Picasso.get()
+                .load(
+                    if (list[index].restaurant?.featured_image != "")
+                        list[index].restaurant?.featured_image
+                    else
+                        list[index].restaurant?.photos?.get(0)?.photo?.url
+                )
+                .into(restaurant_image)
+            restaurant_name.text = list[index].restaurant?.name
+            restaurant_location.text = "${list[index].restaurant?.location?.address}"
+            restaurant_price.text = "Average cost for two: $${list[index].restaurant?.average_cost_for_two}"
+            restaurant_rating.text = "Rating: ${list[index].restaurant?.user_rating?.aggregate_rating}/5"
+            lastIndex = index
+        } else {
+            displayRestaurant(list)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLocation() {
+        if (!hasLocationPermission()) {
+            EasyPermissions.requestPermissions(
+                this,
+                "This application needs access to your location to display restaurants in your area.",
+                874,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+            getLocation()
+        } else {
+            val fusedLocationClient = context?.let { LocationServices.getFusedLocationProviderClient(it) }
+            fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
+                Log.i("LastLocation", location.toString())
+                location?.let { deviceLocation = location }
+                getRestaurants()
             }
-        })
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return EasyPermissions.hasPermissions(context!!, Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 }

@@ -38,6 +38,30 @@
                 android:text="TextView"
                 android:textAlignment="center"
                 android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/restaurant_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/restaurant_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/restaurant_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+
+            <Button
+                android:id="@+id/new_restaurant_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New restaurant" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
