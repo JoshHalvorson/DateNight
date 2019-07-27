@@ -12,6 +12,7 @@ import com.joshuahalvorson.datenight.App
 import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModel
 import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModelFactory
+import kotlinx.android.synthetic.main.fragment_random_restaurant.*
 import javax.inject.Inject
 
 class RandomRestaurantFragment : Fragment() {
@@ -28,9 +29,10 @@ class RandomRestaurantFragment : Fragment() {
         App.app.zomatoComponent.inject(this)
         zomatoViewModel = ViewModelProviders.of(this, zomatoViewModelFactory).get(ZomatoViewModel::class.java)
 
-        zomatoViewModel.getLocalRestaurants(47.0, 41.0, 1).observe(this, Observer { restaurantResponse ->
+        zomatoViewModel.getLocalRestaurants(47.0, 41.0, 1, 1).observe(this, Observer { restaurantResponse ->
             restaurantResponse?.let {
                 Log.i("restaurantResponse", it.restaurants?.get(0)?.restaurant?.name)
+                restaurant_name.text = it.restaurants?.get(0)?.restaurant?.name
             }
         })
     }
