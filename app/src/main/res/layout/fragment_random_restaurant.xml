@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".78" />
+        app:layout_constraintGuide_begin="667dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
@@ -71,7 +71,7 @@
         android:id="@+id/restaurant_card"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="gone"
+        android:visibility="visible"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
@@ -136,32 +136,47 @@
                 app:layout_constraintTop_toTopOf="@+id/guideline9" />
 
             <TextView
-                android:id="@+id/restaurant_rating"
+                android:id="@+id/restaurant_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@+id/restaurant_name" />
+
+            <ImageView
+                android:id="@+id/restaurant_rating"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
                 android:layout_marginTop="5dp"
                 android:text="TextView"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@+id/restaurant_name" />
+                app:layout_constraintTop_toBottomOf="@+id/restaurant_location"
+                app:srcCompat="@drawable/stars_small_0" />
+
+            <TextView
+                android:id="@+id/num_ratings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textSize="10sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/restaurant_rating" />
 
             <TextView
                 android:id="@+id/restaurant_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:text="TextView"
-                android:textColor="@android:color/black"
+                android:textAlignment="center"
                 android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@+id/restaurant_rating" />
-
-            <TextView
-                android:id="@+id/restaurant_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@+id/restaurant_price" />
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/num_ratings" />
 
             <Button
                 android:id="@+id/new_restaurant_button"

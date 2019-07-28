@@ -54,9 +54,9 @@ class RandomRestaurantFragment : Fragment() {
 
     }
 
-    private fun getInitialRestaurants() {
+    private fun getRestaurants() {
         yelpViewModel.getLocalRestaurants("restaurant", deviceLocation.latitude, deviceLocation.longitude)
-            .observe(this, Observer {responseBase ->
+            .observe(this, Observer { responseBase ->
                 restaurantsList.addAll(responseBase.businesses)
                 displayRestaurant()
             })
@@ -80,9 +80,11 @@ class RandomRestaurantFragment : Fragment() {
 
                 })
             restaurant_name.text = restaurantsList[index].name
-            restaurant_location.text = "${restaurantsList[index].location?.address1}"
-            restaurant_price.text = "Average cost: $${restaurantsList[index].price}"
-            restaurant_rating.text = "Rating: ${restaurantsList[index].rating}/5"
+            restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)} ${restaurantsList[index].location?.display_address?.get(1)}"
+            restaurant_price.text = "${restaurantsList[index].price}"
+            restaurant_price.text = if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
+            num_ratings.text = "Based on ${restaurantsList[index].review_count} reviews"
+            loadRatingImage(restaurantsList[index])
             animateView(Techniques.FadeIn, 500, 0, restaurant_name)
             animateView(Techniques.FadeIn, 500, 0, restaurant_location)
             animateView(Techniques.FadeIn, 500, 0, restaurant_price)
@@ -95,6 +97,28 @@ class RandomRestaurantFragment : Fragment() {
         } else {
             displayRestaurant()
         }
+    }
+
+    private fun loadRatingImage(businesses: Businesses) {
+        when (businesses.rating) {
+            0.0 -> loadImage(R.drawable.stars_small_0)
+            1.0 -> loadImage(R.drawable.stars_small_1)
+            1.5 -> loadImage(R.drawable.stars_small_1_half)
+            2.0 -> loadImage(R.drawable.stars_small_2)
+            2.5 -> loadImage(R.drawable.stars_small_2_half)
+            3.0 -> loadImage(R.drawable.stars_small_3)
+            3.5 -> loadImage(R.drawable.stars_small_3_half)
+            4.0 -> loadImage(R.drawable.stars_small_4)
+            4.5 -> loadImage(R.drawable.stars_small_4_half)
+            5.0 -> loadImage(R.drawable.stars_small_5)
+        }
+    }
+
+    private fun loadImage(image: Int) {
+        Picasso.get()
+            .load(image)
+            .noFade()
+            .into(restaurant_rating)
     }
 
     private fun animateRestaurantCardIn() {
@@ -125,7 +149,7 @@ class RandomRestaurantFragment : Fragment() {
             fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
                 Log.i("LastLocation", location.toString())
                 location?.let { deviceLocation = location }
-                getInitialRestaurants()
+                getRestaurants()
             }
         }
     }
