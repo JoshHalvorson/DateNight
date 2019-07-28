@@ -8,15 +8,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.daimajia.androidanimations.library.Techniques
+import com.daimajia.androidanimations.library.YoYo
 import com.google.android.gms.location.LocationServices
 import com.joshuahalvorson.datenight.App
 import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.model.Restaurants
 import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModel
 import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModelFactory
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_random_restaurant.*
 import pub.devrel.easypermissions.EasyPermissions
@@ -63,6 +67,7 @@ class RandomRestaurantFragment : Fragment() {
     }
 
     private fun displayRestaurant(list: List<Restaurants>) {
+        restaurant_image_progress_circle.visibility = View.VISIBLE
         val index = Random.nextInt(0, list.size - 1)
         if (lastIndex != index) {
             Picasso.get()
@@ -72,15 +77,40 @@ class RandomRestaurantFragment : Fragment() {
                     else
                         list[index].restaurant?.photos?.get(0)?.photo?.url
                 )
-                .into(restaurant_image)
+                .into(restaurant_image, object : Callback {
+                    override fun onSuccess() {
+                        restaurant_image_progress_circle.visibility = View.GONE
+                    }
+
+                    override fun onError(e: Exception?) {
+                        Toast.makeText(context, e?.localizedMessage, Toast.LENGTH_LONG).show()
+                    }
+
+                })
             restaurant_name.text = list[index].restaurant?.name
             restaurant_location.text = "${list[index].restaurant?.location?.address}"
             restaurant_price.text = "Average cost for two: $${list[index].restaurant?.average_cost_for_two}"
             restaurant_rating.text = "Rating: ${list[index].restaurant?.user_rating?.aggregate_rating}/5"
             lastIndex = index
+            if (restaurant_card.visibility == View.GONE) {
+                animateRestaurantCardIn()
+            }
         } else {
             displayRestaurant(list)
         }
+    }
+
+    private fun animateRestaurantCardIn() {
+        YoYo.with(Techniques.FadeOut)
+            .duration(500)
+            .repeat(0)
+            .playOn(progress_circle)
+        progress_circle.visibility = View.GONE
+        restaurant_card.visibility = View.VISIBLE
+        YoYo.with(Techniques.FadeIn)
+            .duration(500)
+            .repeat(0)
+            .playOn(restaurant_card)
     }
 
     @SuppressLint("MissingPermission")
