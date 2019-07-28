@@ -2,14 +2,14 @@ package com.joshuahalvorson.datenight.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.joshuahalvorson.datenight.network.ZomatoRepository
+import com.joshuahalvorson.datenight.network.YelpRepository
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
-class ZomatoViewModelFactory @Inject constructor(var zomatoRepository: ZomatoRepository) : ViewModelProvider.Factory {
+class YelpViewModelFactory @Inject constructor(var yelpRepository: YelpRepository) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return ZomatoViewModel(zomatoRepository) as T
+        return YelpViewModel(yelpRepository) as T
     }
 
 }

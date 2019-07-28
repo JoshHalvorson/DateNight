@@ -5,8 +5,8 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, ZomatoRepoModule::class])
-interface ZomatoComponent {
+@Component(modules = [AppModule::class, YelpRepoModule::class])
+interface YelpComponent {
     fun inject(randomRestaurantFragment: RandomRestaurantFragment)
 
 }

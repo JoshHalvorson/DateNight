@@ -10,12 +10,12 @@ class RetrofitInstance {
 
     companion object {
         private var retrofit: Retrofit? = null
-        private const val BASE_URL = "https://developers.zomato.com/api/v2.1/"
+        private const val BASE_URL = "https://api.yelp.com/v3/"
 
-        fun getService(): ZomatoApiService? {
+        fun getService(): YelpApiService? {
             if (retrofit == null) {
                 val interceptor = HttpLoggingInterceptor()
-                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                interceptor.apply { interceptor.level = HttpLoggingInterceptor.Level.BODY }
                 val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
 
                 retrofit = Retrofit
@@ -26,7 +26,7 @@ class RetrofitInstance {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
             }
-            return retrofit?.create(ZomatoApiService::class.java)
+            return retrofit?.create(YelpApiService::class.java)
         }
     }
 

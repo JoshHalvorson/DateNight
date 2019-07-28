@@ -17,14 +17,12 @@ import com.daimajia.androidanimations.library.YoYo
 import com.google.android.gms.location.LocationServices
 import com.joshuahalvorson.datenight.App
 import com.joshuahalvorson.datenight.R
-import com.joshuahalvorson.datenight.model.Restaurants
-import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModel
-import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModelFactory
+import com.joshuahalvorson.datenight.model.Businesses
+import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
+import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_random_restaurant.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.random.Random
@@ -32,53 +30,44 @@ import kotlin.random.Random
 class RandomRestaurantFragment : Fragment() {
 
     @Inject
-    lateinit var zomatoViewModelFactory: ZomatoViewModelFactory
-    private lateinit var zomatoViewModel: ZomatoViewModel
-    private lateinit var restaurantsList: List<Restaurants>
+    lateinit var yelpViewModelFactory: YelpViewModelFactory
+    private lateinit var yelpViewModel: YelpViewModel
     private lateinit var deviceLocation: Location
 
     private var lastIndex = 0
+    private var page = 1
+    private var restaurantsList: ArrayList<Businesses> = arrayListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_random_restaurant, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        App.app.zomatoComponent.inject(this)
-        zomatoViewModel = ViewModelProviders.of(this, zomatoViewModelFactory).get(ZomatoViewModel::class.java)
+        App.app.yelpComponent.inject(this)
+        yelpViewModel = ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
 
         getLocation()
 
         new_restaurant_button.setOnClickListener {
-            displayRestaurant(restaurantsList)
+            displayRestaurant()
         }
 
     }
 
-    private fun getRestaurants() {
-        zomatoViewModel.getLocalRestaurants(deviceLocation.latitude, deviceLocation.longitude, 50, 1)
-            .observe(this, Observer {
-                it?.let { restaurantResponse ->
-                    Log.i("restaurantResponse", " ${restaurantResponse.restaurants?.size.toString()} restaurants")
-                    restaurantResponse.restaurants?.let { list ->
-                        restaurantsList = list
-                        displayRestaurant(restaurantsList)
-                    }
-                }
+    private fun getInitialRestaurants() {
+        yelpViewModel.getLocalRestaurants("restaurant", deviceLocation.latitude, deviceLocation.longitude)
+            .observe(this, Observer {responseBase ->
+                restaurantsList.addAll(responseBase.businesses)
+                displayRestaurant()
             })
     }
 
-    private fun displayRestaurant(list: List<Restaurants>) {
+    private fun displayRestaurant() {
         restaurant_image_progress_circle.visibility = View.VISIBLE
-        val index = Random.nextInt(0, list.size - 1)
+        val index = Random.nextInt(0, restaurantsList.size - 1)
         if (lastIndex != index) {
             Picasso.get()
-                .load(
-                    if (list[index].restaurant?.featured_image != "")
-                        list[index].restaurant?.featured_image
-                    else
-                        list[index].restaurant?.photos?.get(0)?.photo?.url
-                )
+                .load(restaurantsList[index].image_url)
                 .noFade()
                 .into(restaurant_image, object : Callback {
                     override fun onSuccess() {
@@ -90,10 +79,10 @@ class RandomRestaurantFragment : Fragment() {
                     }
 
                 })
-            restaurant_name.text = list[index].restaurant?.name
-            restaurant_location.text = "${list[index].restaurant?.location?.address}"
-            restaurant_price.text = "Average cost for two: $${list[index].restaurant?.average_cost_for_two}"
-            restaurant_rating.text = "Rating: ${list[index].restaurant?.user_rating?.aggregate_rating}/5"
+            restaurant_name.text = restaurantsList[index].name
+            restaurant_location.text = "${restaurantsList[index].location?.address1}"
+            restaurant_price.text = "Average cost: $${restaurantsList[index].price}"
+            restaurant_rating.text = "Rating: ${restaurantsList[index].rating}/5"
             animateView(Techniques.FadeIn, 500, 0, restaurant_name)
             animateView(Techniques.FadeIn, 500, 0, restaurant_location)
             animateView(Techniques.FadeIn, 500, 0, restaurant_price)
@@ -104,7 +93,7 @@ class RandomRestaurantFragment : Fragment() {
                 animateRestaurantCardIn()
             }
         } else {
-            displayRestaurant(list)
+            displayRestaurant()
         }
     }
 
@@ -136,7 +125,7 @@ class RandomRestaurantFragment : Fragment() {
             fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
                 Log.i("LastLocation", location.toString())
                 location?.let { deviceLocation = location }
-                getRestaurants()
+                getInitialRestaurants()
             }
         }
     }

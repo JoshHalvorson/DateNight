@@ -2,11 +2,11 @@ package com.joshuahalvorson.datenight
 
 import android.app.Application
 import com.joshuahalvorson.datenight.di.AppModule
-import com.joshuahalvorson.datenight.di.DaggerZomatoComponent
-import com.joshuahalvorson.datenight.di.ZomatoComponent
+import com.joshuahalvorson.datenight.di.DaggerYelpComponent
+import com.joshuahalvorson.datenight.di.YelpComponent
 
 class App : Application() {
-    lateinit var zomatoComponent: ZomatoComponent
+    lateinit var yelpComponent: YelpComponent
 
     companion object {
         lateinit var app: App
@@ -16,7 +16,7 @@ class App : Application() {
         super.onCreate()
         app = this
 
-        zomatoComponent = DaggerZomatoComponent
+        yelpComponent = DaggerYelpComponent
             .builder()
             .appModule(AppModule(this))
             .build()
