@@ -23,6 +23,8 @@ import com.joshuahalvorson.datenight.viewmodel.ZomatoViewModelFactory
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_random_restaurant.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.random.Random
@@ -77,6 +79,7 @@ class RandomRestaurantFragment : Fragment() {
                     else
                         list[index].restaurant?.photos?.get(0)?.photo?.url
                 )
+                .noFade()
                 .into(restaurant_image, object : Callback {
                     override fun onSuccess() {
                         restaurant_image_progress_circle.visibility = View.GONE
@@ -91,6 +94,11 @@ class RandomRestaurantFragment : Fragment() {
             restaurant_location.text = "${list[index].restaurant?.location?.address}"
             restaurant_price.text = "Average cost for two: $${list[index].restaurant?.average_cost_for_two}"
             restaurant_rating.text = "Rating: ${list[index].restaurant?.user_rating?.aggregate_rating}/5"
+            animateView(Techniques.FadeIn, 500, 0, restaurant_name)
+            animateView(Techniques.FadeIn, 500, 0, restaurant_location)
+            animateView(Techniques.FadeIn, 500, 0, restaurant_price)
+            animateView(Techniques.FadeIn, 500, 0, restaurant_rating)
+            animateView(Techniques.FadeIn, 500, 0, restaurant_image)
             lastIndex = index
             if (restaurant_card.visibility == View.GONE) {
                 animateRestaurantCardIn()
@@ -107,7 +115,7 @@ class RandomRestaurantFragment : Fragment() {
             .playOn(progress_circle)
         progress_circle.visibility = View.GONE
         restaurant_card.visibility = View.VISIBLE
-        YoYo.with(Techniques.FadeIn)
+        YoYo.with(Techniques.SlideInUp)
             .duration(500)
             .repeat(0)
             .playOn(restaurant_card)
@@ -131,6 +139,13 @@ class RandomRestaurantFragment : Fragment() {
                 getRestaurants()
             }
         }
+    }
+
+    private fun animateView(animation: Techniques, duration: Long, repeat: Int, view: View) {
+        YoYo.with(animation)
+            .duration(duration)
+            .repeat(repeat)
+            .playOn(view)
     }
 
     private fun hasLocationPermission(): Boolean {
