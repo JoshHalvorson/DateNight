@@ -13,10 +13,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.daimajia.androidanimations.library.Techniques
-import com.daimajia.androidanimations.library.YoYo
 import com.google.android.gms.location.LocationServices
 import com.joshuahalvorson.datenight.App
 import com.joshuahalvorson.datenight.R
+import com.joshuahalvorson.datenight.animateViewWithYoYo
+import com.joshuahalvorson.datenight.loadImageWithPicasso
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
@@ -35,7 +36,6 @@ class RandomRestaurantFragment : Fragment() {
     private lateinit var deviceLocation: Location
 
     private var lastIndex = 0
-    private var page = 1
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -80,16 +80,17 @@ class RandomRestaurantFragment : Fragment() {
 
                 })
             restaurant_name.text = restaurantsList[index].name
-            restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)} ${restaurantsList[index].location?.display_address?.get(1)}"
-            restaurant_price.text = "${restaurantsList[index].price}"
-            restaurant_price.text = if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
+            restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)}" +
+                    " ${restaurantsList[index].location?.display_address?.get(1)}"
+            restaurant_price.text =
+                if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
             num_ratings.text = "Based on ${restaurantsList[index].review_count} reviews"
             loadRatingImage(restaurantsList[index])
-            animateView(Techniques.FadeIn, 500, 0, restaurant_name)
-            animateView(Techniques.FadeIn, 500, 0, restaurant_location)
-            animateView(Techniques.FadeIn, 500, 0, restaurant_price)
-            animateView(Techniques.FadeIn, 500, 0, restaurant_rating)
-            animateView(Techniques.FadeIn, 500, 0, restaurant_image)
+            restaurant_name.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+            restaurant_location.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+            restaurant_price.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+            restaurant_rating.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+            restaurant_image.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
             lastIndex = index
             if (restaurant_card.visibility == View.GONE) {
                 animateRestaurantCardIn()
@@ -101,37 +102,24 @@ class RandomRestaurantFragment : Fragment() {
 
     private fun loadRatingImage(businesses: Businesses) {
         when (businesses.rating) {
-            0.0 -> loadImage(R.drawable.stars_small_0)
-            1.0 -> loadImage(R.drawable.stars_small_1)
-            1.5 -> loadImage(R.drawable.stars_small_1_half)
-            2.0 -> loadImage(R.drawable.stars_small_2)
-            2.5 -> loadImage(R.drawable.stars_small_2_half)
-            3.0 -> loadImage(R.drawable.stars_small_3)
-            3.5 -> loadImage(R.drawable.stars_small_3_half)
-            4.0 -> loadImage(R.drawable.stars_small_4)
-            4.5 -> loadImage(R.drawable.stars_small_4_half)
-            5.0 -> loadImage(R.drawable.stars_small_5)
+            0.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_0)
+            1.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_1)
+            1.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_1_half)
+            2.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_2)
+            2.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_2_half)
+            3.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_3)
+            3.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_3_half)
+            4.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_4)
+            4.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_4_half)
+            5.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_5)
         }
     }
 
-    private fun loadImage(image: Int) {
-        Picasso.get()
-            .load(image)
-            .noFade()
-            .into(restaurant_rating)
-    }
-
     private fun animateRestaurantCardIn() {
-        YoYo.with(Techniques.FadeOut)
-            .duration(500)
-            .repeat(0)
-            .playOn(progress_circle)
+        progress_circle.animateViewWithYoYo(Techniques.FadeOut, 500, 0)
         progress_circle.visibility = View.GONE
         restaurant_card.visibility = View.VISIBLE
-        YoYo.with(Techniques.SlideInUp)
-            .duration(500)
-            .repeat(0)
-            .playOn(restaurant_card)
+        restaurant_card.animateViewWithYoYo(Techniques.SlideInUp, 500, 0)
     }
 
     @SuppressLint("MissingPermission")
@@ -152,13 +140,6 @@ class RandomRestaurantFragment : Fragment() {
                 getRestaurants()
             }
         }
-    }
-
-    private fun animateView(animation: Techniques, duration: Long, repeat: Int, view: View) {
-        YoYo.with(animation)
-            .duration(duration)
-            .repeat(repeat)
-            .playOn(view)
     }
 
     private fun hasLocationPermission(): Boolean {

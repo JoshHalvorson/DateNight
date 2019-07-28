@@ -71,7 +71,7 @@
         android:id="@+id/restaurant_card"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
