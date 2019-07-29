@@ -82,4 +82,4 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
-**/*/res/values/keys.xml"
+**/*/res/values/keys.xml
