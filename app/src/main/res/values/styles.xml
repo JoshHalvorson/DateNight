@@ -6,12 +6,30 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="bottomSheetStyle">@style/AppStandardBottomSheet</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="shapeAppearanceLargeComponent">@style/AppShapeAppearance.LargeComponent</item>
     </style>
 
     <style name="DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
         <item name="color">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="AppShapeAppearance.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+
+    <style name="AppStandardBottomSheet">
+        <item name="shapeAppearance">?attr/shapeAppearanceLargeComponent</item>
+        <item name="android:elevation">10dp</item>
+        <item name="behavior_hideable">false</item>
+        <item name="behavior_skipCollapsed">false</item>
+        <item name="behavior_peekHeight">95dp</item>
+        <item name="behavior_fitToContents">false</item>
+        <item name="behavior_halfExpandedRatio">0.35</item>
+        <item name="behavior_expandedOffset">100</item>
     </style>
 
 </resources>

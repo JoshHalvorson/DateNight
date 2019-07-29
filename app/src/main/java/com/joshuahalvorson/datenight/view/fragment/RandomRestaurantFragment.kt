@@ -14,6 +14,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.daimajia.androidanimations.library.Techniques
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.joshuahalvorson.datenight.App
 import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.animateViewWithYoYo
@@ -23,17 +29,19 @@ import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.content_random_restaurant.*
 import kotlinx.android.synthetic.main.fragment_random_restaurant.*
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.random.Random
 
-class RandomRestaurantFragment : Fragment() {
+class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
     @Inject
     lateinit var yelpViewModelFactory: YelpViewModelFactory
     private lateinit var yelpViewModel: YelpViewModel
     private lateinit var deviceLocation: Location
+    private lateinit var mMap: GoogleMap
 
     private var lastIndex = 0
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
@@ -45,6 +53,10 @@ class RandomRestaurantFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         App.app.yelpComponent.inject(this)
         yelpViewModel = ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
+
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
+        mapFragment?.getMapAsync(this)
 
         getLocation()
 
@@ -64,6 +76,7 @@ class RandomRestaurantFragment : Fragment() {
 
     private fun displayRestaurant() {
         restaurant_image_progress_circle.visibility = View.VISIBLE
+        bottom_sheet_restaurant_details.visibility = View.VISIBLE
         val index = Random.nextInt(0, restaurantsList.size - 1)
         if (lastIndex != index) {
             Picasso.get()
@@ -86,6 +99,8 @@ class RandomRestaurantFragment : Fragment() {
                 if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
             num_ratings.text = "Based on ${restaurantsList[index].review_count} reviews"
             loadRatingImage(restaurantsList[index])
+            setBottomSheetContent(restaurantsList[index])
+            bottom_sheet_restaurant_details.animateViewWithYoYo(Techniques.SlideInUp, 500, 0)
             restaurant_name.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
             restaurant_location.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
             restaurant_price.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
@@ -98,6 +113,34 @@ class RandomRestaurantFragment : Fragment() {
         } else {
             displayRestaurant()
         }
+    }
+
+    private fun setBottomSheetContent(businesses: Businesses) {
+        mMap.clear()
+        bottom_sheet_restaurant_title.text = businesses.name
+        bottom_sheet_restaurant_categories.text = ""
+        var categories = 0
+        businesses.categories?.size?.let {
+            categories = it
+        }
+        for (i in 0 until categories) {
+            bottom_sheet_restaurant_categories.text =
+                "${bottom_sheet_restaurant_categories.text}${businesses.categories?.get(i)?.title} \n"
+        }
+
+        businesses.coordinates?.latitude?.let { latitude ->
+            businesses.coordinates.longitude?.let { longitude ->
+                val location = LatLng(latitude, longitude)
+                mMap.addMarker(MarkerOptions().position(location).title(businesses.name))
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+            }
+        }
+
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        mMap.uiSettings.isScrollGesturesEnabled = false
     }
 
     private fun loadRatingImage(businesses: Businesses) {
