@@ -6,7 +6,7 @@ data class Review(
     val id: String?,
     val url: String?,
     val text: String?,
-    val rating: Number?,
+    val rating: Double?,
     val time_created: String?,
     val user: User?
 )

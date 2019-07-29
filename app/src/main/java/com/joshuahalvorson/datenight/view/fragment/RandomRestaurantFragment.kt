@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.daimajia.androidanimations.library.Techniques
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -20,17 +21,15 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.joshuahalvorson.datenight.App
-import com.joshuahalvorson.datenight.R
-import com.joshuahalvorson.datenight.animateViewWithYoYo
-import com.joshuahalvorson.datenight.loadImageWithPicasso
+import com.joshuahalvorson.datenight.*
+import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.content_random_restaurant.*
-import kotlinx.android.synthetic.main.fragment_random_restaurant.*
+import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.random.Random
@@ -98,7 +97,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             restaurant_price.text =
                 if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
             num_ratings.text = "Based on ${restaurantsList[index].review_count} reviews"
-            loadRatingImage(restaurantsList[index])
+            restaurantsList[index].rating?.let { restaurant_rating.loadRatingImageWithPicasso(it) }
             setBottomSheetContent(restaurantsList[index])
             bottom_sheet_restaurant_details.animateViewWithYoYo(Techniques.SlideInUp, 500, 0)
             restaurant_name.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
@@ -136,26 +135,22 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
+        businesses.alias?.let {alias ->
+            yelpViewModel.getRestaurantReviews(alias).observe(this, Observer { response ->
+                Log.i("reviewResponse", "${response.reviews?.size}")
+                bottom_sheet_restaurant_reviews.apply {
+                    layoutManager = LinearLayoutManager(context)
+                    response.reviews?.let { reviews ->
+                        adapter = RestaurantReviewsListAdapter(reviews)
+                    }
+                }
+            })
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.uiSettings.isScrollGesturesEnabled = false
-    }
-
-    private fun loadRatingImage(businesses: Businesses) {
-        when (businesses.rating) {
-            0.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_0)
-            1.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_1)
-            1.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_1_half)
-            2.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_2)
-            2.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_2_half)
-            3.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_3)
-            3.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_3_half)
-            4.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_4)
-            4.5 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_4_half)
-            5.0 -> restaurant_rating.loadImageWithPicasso(R.drawable.stars_small_5)
-        }
     }
 
     private fun animateRestaurantCardIn() {

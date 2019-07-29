@@ -29,7 +29,7 @@
         <item name="behavior_peekHeight">95dp</item>
         <item name="behavior_fitToContents">false</item>
         <item name="behavior_halfExpandedRatio">0.35</item>
-        <item name="behavior_expandedOffset">100</item>
+        <item name="behavior_expandedOffset">20</item>
     </style>
 
 </resources>

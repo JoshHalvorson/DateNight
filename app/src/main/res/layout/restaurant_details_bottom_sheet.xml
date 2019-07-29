@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_sheet_restaurant_details"
     style="?attr/bottomSheetStyle"
     android:layout_width="match_parent"
@@ -87,7 +86,7 @@
             android:id="@+id/restaurant_map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="0dp"
-            android:layout_height="250dp"
+            android:layout_height="200dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             map:layout_constraintEnd_toEndOf="parent"
@@ -95,14 +94,16 @@
             map:layout_constraintTop_toBottomOf="@id/bottom_sheet_restaurant_categories" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/bottom_sheet_reviews"
+            android:id="@+id/bottom_sheet_restaurant_reviews"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/guideline7"
             app:layout_constraintStart_toStartOf="@id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/restaurant_map" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</FrameLayout>
+
+</androidx.core.widget.NestedScrollView>
