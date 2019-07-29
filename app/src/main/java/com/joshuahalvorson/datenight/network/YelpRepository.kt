@@ -5,14 +5,16 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.joshuahalvorson.datenight.BuildConfig
 import com.joshuahalvorson.datenight.model.ResponseBase
+import com.joshuahalvorson.datenight.model.ReviewResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class YelpRepository(application: Application) {
 
-    private var responseBase = MutableLiveData<ResponseBase>()
     private var yelpApiService: YelpApiService? = RetrofitInstance.getService()
+    private var responseBase = MutableLiveData<ResponseBase>()
+    private var reviewResponse = MutableLiveData<ReviewResponse>()
 
     fun getLocalRestaurantData(type: String, lat: Double, lon: Double): MutableLiveData<ResponseBase> {
         val call =
@@ -27,6 +29,20 @@ class YelpRepository(application: Application) {
             }
         })
         return responseBase
+    }
+
+    fun getRestaurantReviews(id: String): MutableLiveData<ReviewResponse> {
+        val call = yelpApiService?.getRestaurantReviews(BuildConfig.api_key, id)
+        call?.enqueue(object : Callback<ReviewResponse> {
+            override fun onFailure(call: Call<ReviewResponse>, t: Throwable) {
+                Log.i("reviewResponse", t.localizedMessage)
+            }
+
+            override fun onResponse(call: Call<ReviewResponse>, response: Response<ReviewResponse>) {
+                reviewResponse.postValue(response.body())
+            }
+        })
+        return reviewResponse
     }
 
 }
