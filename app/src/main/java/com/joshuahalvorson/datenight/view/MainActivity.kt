@@ -15,9 +15,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.joshuahalvorson.datenight.BuildConfig
 import com.joshuahalvorson.datenight.R
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListener {
@@ -34,11 +31,6 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
 
         setupNavigation(navController)
         setupActionBar(navController, appBarConfiguration)
-
-        AppCenter.start(
-            application, BuildConfig.app_secret,
-            Analytics::class.java, Crashes::class.java
-        )
     }
 
     private fun setupActionBar(navController: NavController, appBarConfig: AppBarConfiguration) {
