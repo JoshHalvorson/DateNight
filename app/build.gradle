@@ -17,6 +17,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "api_key", localProperties['yelp_key']
+        buildConfigField "String", "app_secret", localProperties['app_secret']
     }
     buildTypes {
         release {
@@ -45,6 +46,8 @@ dependencies {
 
     implementation 'androidx.navigation:navigation-fragment-ktx:2.0.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.0.0'
+
+    implementation "com.yuyakaido.android:card-stack-view:2.3.4"
 
     // Dagger
     implementation 'com.google.dagger:dagger:2.21'
@@ -81,4 +84,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:17.0.0'
 
     implementation 'pub.devrel:easypermissions:3.0.0'
+
+    def appCenterSdkVersion = '2.2.0'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 }
