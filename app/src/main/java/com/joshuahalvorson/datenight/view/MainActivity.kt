@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
         val drawerLayout: DrawerLayout? = findViewById(R.id.drawer_layout)
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.randomRestaurantFragment, R.id.favoriteRestaurantsFragment),
+            setOf(R.id.randomRestaurantFragment, R.id.savedRestaurantsFragment),
             drawerLayout
         )
     }

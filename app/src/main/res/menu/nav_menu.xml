@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Random Restaurant" android:id="@+id/randomRestaurantFragment"/>
-    <item android:title="Favorites" android:id="@+id/favorites"/>
+    <item android:title="Random restaurant" android:id="@+id/randomRestaurantFragment"/>
+    <item android:title="Saved restaurants" android:id="@+id/savedRestaurantsFragment"/>
 </menu>

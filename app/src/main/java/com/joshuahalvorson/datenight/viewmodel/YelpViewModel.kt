@@ -2,6 +2,7 @@ package com.joshuahalvorson.datenight.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.ResponseBase
 import com.joshuahalvorson.datenight.model.ReviewResponse
 import com.joshuahalvorson.datenight.network.YelpRepository
@@ -16,6 +17,10 @@ class YelpViewModel(private var yelpRepository: YelpRepository) : ViewModel() {
 
     fun getRestaurantReviews(id: String): MutableLiveData<ReviewResponse> {
         return yelpRepository.getRestaurantReviews(id)
+    }
+
+    fun getRestaurant(id: String): MutableLiveData<Businesses> {
+        return yelpRepository.getRestaurant(id)
     }
 
 }

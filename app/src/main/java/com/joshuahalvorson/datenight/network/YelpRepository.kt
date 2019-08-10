@@ -1,9 +1,11 @@
 package com.joshuahalvorson.datenight.network
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.joshuahalvorson.datenight.BuildConfig
+import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.ResponseBase
 import com.joshuahalvorson.datenight.model.ReviewResponse
 import retrofit2.Call
@@ -15,6 +17,7 @@ class YelpRepository(application: Application) {
     private var yelpApiService: YelpApiService? = RetrofitInstance.getService()
     private var responseBase = MutableLiveData<ResponseBase>()
     private var reviewResponse = MutableLiveData<ReviewResponse>()
+    private var businessResponse = MutableLiveData<Businesses>()
 
     fun getLocalRestaurantData(type: String, lat: Double, lon: Double): MutableLiveData<ResponseBase> {
         val call =
@@ -43,6 +46,21 @@ class YelpRepository(application: Application) {
             }
         })
         return reviewResponse
+    }
+
+    fun getRestaurant(id: String): MutableLiveData<Businesses> {
+        val call = yelpApiService?.getRestaurant(BuildConfig.api_key, id)
+        call?.enqueue(object: Callback<Businesses> {
+            override fun onFailure(call: Call<Businesses>, t: Throwable) {
+                Log.i("businessResponse", t.localizedMessage)
+            }
+
+            override fun onResponse(call: Call<Businesses>, response: Response<Businesses>) {
+                businessResponse.postValue(response.body())
+            }
+
+        })
+        return businessResponse
     }
 
 }

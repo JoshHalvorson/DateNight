@@ -1,5 +1,6 @@
 package com.joshuahalvorson.datenight.network
 
+import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.ResponseBase
 import com.joshuahalvorson.datenight.model.ReviewResponse
 import retrofit2.Call
@@ -24,5 +25,11 @@ interface YelpApiService {
         @Header("Authorization") key: String,
         @Path("id") id: String
     ): Call<ReviewResponse>
+
+    @GET("businesses/{id}")
+    fun getRestaurant(
+        @Header("Authorization") key: String,
+        @Path("id") id: String
+    ): Call<Businesses>
 
 }
