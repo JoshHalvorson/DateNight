@@ -2,6 +2,7 @@ package com.joshuahalvorson.datenight.view.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -44,14 +45,24 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
     private var lastIndex = 0
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
+    private var sharedPrefsHelper = SharedPrefsHelper(
+        activity?.getSharedPreferences(
+            SharedPrefsHelper.PREFERENCE_FILE_KEY, Context.MODE_PRIVATE
+        )
+    )
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_random_restaurant, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         App.app.yelpComponent.inject(this)
-        yelpViewModel = ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
+        yelpViewModel =
+            ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
 
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
@@ -66,7 +77,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun getRestaurants() {
-        yelpViewModel.getLocalRestaurants("restaurant", deviceLocation.latitude, deviceLocation.longitude)
+        yelpViewModel.getLocalRestaurants(
+            "restaurant",
+            deviceLocation.latitude,
+            deviceLocation.longitude
+        )
             .observe(this, Observer { responseBase ->
                 restaurantsList.addAll(responseBase.businesses)
                 displayRestaurant()
@@ -127,8 +142,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
 
         businesses.url?.let { url ->
-            context?.let {
-                    context -> open_restaurant_on_yelp_imageview.openUrlOnClick(url, context)
+            context?.let { context ->
+                open_restaurant_on_yelp_imageview.openUrlOnClick(url, context)
             }
         }
 
@@ -140,7 +155,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
-        businesses.alias?.let {alias ->
+        businesses.alias?.let { alias ->
             yelpViewModel.getRestaurantReviews(alias).observe(this, Observer { response ->
                 Log.i("reviewResponse", "${response.reviews?.size}")
                 bottom_sheet_restaurant_reviews.apply {
@@ -150,6 +165,17 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
             })
+        }
+
+        favorite_button.setOnClickListener {
+            sharedPrefsHelper.put(SharedPrefsHelper.RESTAURANT_ID_KEY, businesses.id)
+            sharedPrefsHelper.put(SharedPrefsHelper.RESTAURANT_NAME_KEY, businesses.name)
+            Toast.makeText(
+                context,
+                "Added ${businesses.name} to your favorites!",
+                Toast.LENGTH_LONG
+            ).show()
+            //TODO("Play animation for favorite button")
         }
     }
 
@@ -176,7 +202,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             )
             getLocation()
         } else {
-            val fusedLocationClient = context?.let { LocationServices.getFusedLocationProviderClient(it) }
+            val fusedLocationClient =
+                context?.let { LocationServices.getFusedLocationProviderClient(it) }
             fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
                 Log.i("LastLocation", location.toString())
                 location?.let { deviceLocation = location }
@@ -189,7 +216,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         return EasyPermissions.hasPermissions(context!!, Manifest.permission.ACCESS_COARSE_LOCATION)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
