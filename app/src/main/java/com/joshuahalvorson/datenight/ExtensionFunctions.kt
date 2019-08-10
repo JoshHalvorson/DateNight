@@ -1,7 +1,11 @@
 package com.joshuahalvorson.datenight
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.View
 import android.widget.ImageView
+import androidx.core.content.ContextCompat.startActivity
 import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
 import com.squareup.picasso.Picasso
@@ -35,4 +39,12 @@ fun View.animateViewWithYoYo(animation: Techniques, duration: Long, repeat: Int)
         .duration(duration)
         .repeat(repeat)
         .playOn(this)
+}
+
+fun View.openUrlOnClick(url: String, context: Context) {
+    this.setOnClickListener {
+        val uri = Uri.parse(url)
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        startActivity(context, intent, null)
+    }
 }

@@ -11,6 +11,7 @@ import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.loadImageWithPicasso
 import com.joshuahalvorson.datenight.loadRatingImageWithPicasso
 import com.joshuahalvorson.datenight.model.Review
+import com.joshuahalvorson.datenight.openUrlOnClick
 import kotlinx.android.synthetic.main.restaurant_reviews_list_item.view.*
 
 class RestaurantReviewsListAdapter(private val reviews: List<Review>) : RecyclerView.Adapter<RestaurantReviewsListAdapter.ViewHolder>() {
@@ -33,12 +34,15 @@ class RestaurantReviewsListAdapter(private val reviews: List<Review>) : Recycler
         private val reviewTimestamp: TextView = itemView.review_time_stamp
         private val reviewText: TextView = itemView.review_text
         private val reviewRating: ImageView = itemView.review_rating
+        private val reviewYelpImage: ImageView = itemView.review_open_imageview
+        private val context = view.context
 
         fun bindModel(review: Review) {
             reviewUserName.text = review.user?.name
             reviewTimestamp.text = review.time_created
             reviewText.text = review.text
             review.rating?.let { reviewRating.loadRatingImageWithPicasso(it) }
+            review.url?.let { reviewYelpImage.openUrlOnClick(it, context) }
         }
     }
 }
