@@ -127,6 +127,12 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 "${bottom_sheet_restaurant_categories.text}${businesses.categories?.get(i)?.title} \n"
         }
 
+        businesses.url?.let { url ->
+            context?.let {
+                    context -> open_restaurant_on_yelp_imageview.openUrlOnClick(url, context)
+            }
+        }
+
         businesses.coordinates?.latitude?.let { latitude ->
             businesses.coordinates.longitude?.let { longitude ->
                 val location = LatLng(latitude, longitude)
