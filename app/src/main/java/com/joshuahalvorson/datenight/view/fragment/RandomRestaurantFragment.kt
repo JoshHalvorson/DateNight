@@ -42,14 +42,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     private lateinit var yelpViewModel: YelpViewModel
     private lateinit var deviceLocation: Location
     private lateinit var mMap: GoogleMap
+    private lateinit var sharedPrefsHelper: SharedPrefsHelper
 
     private var lastIndex = 0
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
-    private var sharedPrefsHelper = SharedPrefsHelper(
-        activity?.getSharedPreferences(
-            SharedPrefsHelper.PREFERENCE_FILE_KEY, Context.MODE_PRIVATE
-        )
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,6 +59,12 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         App.app.yelpComponent.inject(this)
         yelpViewModel =
             ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
+
+        sharedPrefsHelper = SharedPrefsHelper(
+            activity?.getSharedPreferences(
+                SharedPrefsHelper.PREFERENCE_FILE_KEY, Context.MODE_PRIVATE
+            )
+        )
 
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
@@ -168,8 +170,14 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
 
         favorite_button.setOnClickListener {
-            sharedPrefsHelper.put(SharedPrefsHelper.RESTAURANT_ID_KEY, businesses.id)
-            sharedPrefsHelper.put(SharedPrefsHelper.RESTAURANT_NAME_KEY, businesses.name)
+            sharedPrefsHelper.put(
+                SharedPrefsHelper.RESTAURANT_ID_KEY,
+                "${sharedPrefsHelper.get(SharedPrefsHelper.RESTAURANT_ID_KEY, "")} ${businesses.id},"
+            )
+            sharedPrefsHelper.put(
+                SharedPrefsHelper.RESTAURANT_NAME_KEY,
+                "${sharedPrefsHelper.get(SharedPrefsHelper.RESTAURANT_NAME_KEY, "")} ${businesses.name},"
+            )
             Toast.makeText(
                 context,
                 "Added ${businesses.name} to your favorites!",

@@ -12,8 +12,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.facebook.stetho.Stetho
 import com.google.android.material.navigation.NavigationView
-import com.joshuahalvorson.datenight.BuildConfig
 import com.joshuahalvorson.datenight.R
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -31,6 +31,8 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
 
         setupNavigation(navController)
         setupActionBar(navController, appBarConfiguration)
+
+        Stetho.initializeWithDefaults(applicationContext)
     }
 
     private fun setupActionBar(navController: NavController, appBarConfig: AppBarConfiguration) {
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
         val drawerLayout: DrawerLayout? = findViewById(R.id.drawer_layout)
 
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.randomRestaurantFragment),
+            setOf(R.id.randomRestaurantFragment, R.id.favoriteRestaurantsFragment),
             drawerLayout
         )
     }
