@@ -16,12 +16,12 @@
         android:layout_height="match_parent">
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/favorite_button"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="#00FFFFFF"
             android:src="@drawable/ic_star_black_30dp"
-            app:layout_constraintBottom_toBottomOf="@+id/bottom_sheet_arrow"
+            app:layout_constraintBottom_toBottomOf="@+id/open_restaurant_on_yelp_imageview"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
             app:layout_constraintTop_toTopOf="parent" />
 
