@@ -92,8 +92,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
                 })
             restaurant_name.text = restaurantsList[index].name
-            restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)}" +
-                    " ${restaurantsList[index].location?.display_address?.get(1)}"
+            restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)}"
             restaurant_price.text =
                 if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
             num_ratings.text = "Based on ${restaurantsList[index].review_count} reviews"

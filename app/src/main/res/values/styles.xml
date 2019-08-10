@@ -26,7 +26,7 @@
         <item name="android:elevation">10dp</item>
         <item name="behavior_hideable">false</item>
         <item name="behavior_skipCollapsed">false</item>
-        <item name="behavior_peekHeight">95dp</item>
+        <item name="behavior_peekHeight">60dp</item>
         <item name="behavior_fitToContents">false</item>
         <item name="behavior_halfExpandedRatio">0.35</item>
         <item name="behavior_expandedOffset">20</item>
