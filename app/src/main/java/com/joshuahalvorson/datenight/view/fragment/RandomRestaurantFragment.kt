@@ -169,7 +169,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             })
         }
 
-        favorite_button.setOnClickListener {
+        save_for_later_button.setOnClickListener {
             sharedPrefsHelper.put(
                 SharedPrefsHelper.RESTAURANT_ID_KEY,
                 "${sharedPrefsHelper.get(SharedPrefsHelper.RESTAURANT_ID_KEY, "")} ${businesses.id},"
@@ -180,10 +180,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             )
             Toast.makeText(
                 context,
-                "Added ${businesses.name} to your favorites!",
+                "Saved ${businesses.name} for later!",
                 Toast.LENGTH_LONG
             ).show()
-            //TODO("Play animation for favorite button")
+            //TODO("Play animation for saved for later button")
         }
     }
 
