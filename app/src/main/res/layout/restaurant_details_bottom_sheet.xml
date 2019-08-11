@@ -8,7 +8,7 @@
     android:background="@android:color/background_light"
     android:clickable="true"
     android:focusable="true"
-    android:visibility="visible"
+    android:visibility="gone"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <androidx.constraintlayout.widget.ConstraintLayout
