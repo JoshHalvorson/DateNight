@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.daimajia.androidanimations.library.Techniques
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.joshuahalvorson.datenight.*
 import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
+import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
@@ -31,6 +33,9 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.content_random_restaurant.*
 import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.random.Random
@@ -42,8 +47,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     private lateinit var yelpViewModel: YelpViewModel
     private lateinit var deviceLocation: Location
     private lateinit var mMap: GoogleMap
-    private lateinit var sharedPrefsHelper: SharedPrefsHelper
 
+    private var db: RestaurantDatabase? = null
     private var lastIndex = 0
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
 
@@ -60,11 +65,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         yelpViewModel =
             ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
 
-        sharedPrefsHelper = SharedPrefsHelper(
-            activity?.getSharedPreferences(
-                SharedPrefsHelper.PREFERENCE_FILE_KEY, Context.MODE_PRIVATE
-            )
-        )
+        db = context?.let {
+            Room.databaseBuilder(it,
+                RestaurantDatabase::class.java, getString(R.string.database_playlist_name)).build()
+        }
 
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
@@ -170,14 +174,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
 
         save_for_later_button.setOnClickListener {
-            sharedPrefsHelper.put(
-                SharedPrefsHelper.RESTAURANT_ID_KEY,
-                "${sharedPrefsHelper.get(SharedPrefsHelper.RESTAURANT_ID_KEY, "")} ${businesses.id},"
-            )
-            sharedPrefsHelper.put(
-                SharedPrefsHelper.RESTAURANT_NAME_KEY,
-                "${sharedPrefsHelper.get(SharedPrefsHelper.RESTAURANT_NAME_KEY, "")} ${businesses.name},"
-            )
+            GlobalScope.launch(Dispatchers.IO) {
+                businesses.toSavedRestaurant()?.let { savedRestaurant ->
+                    db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+                }
+            }
             Toast.makeText(
                 context,
                 "Saved ${businesses.name} for later!",
