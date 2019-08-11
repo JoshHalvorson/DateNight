@@ -1,5 +1,9 @@
 package com.joshuahalvorson.datenight.model
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class ResponseBase(val businesses: List<Businesses>, val total: Number?, val region: Region?)
 
 data class Businesses(
@@ -19,6 +23,16 @@ data class Businesses(
     val phone: String?,
     val display_phone: String?,
     val distance: Double?
+)
+
+@Entity(tableName = "saved_restaurants")
+data class SavedRestaurant(
+    @ColumnInfo(name = "restaurant_id") @PrimaryKey val id: String,
+    @ColumnInfo(name = "restaurant_name") val name: String?,
+    @ColumnInfo(name = "restaurant_image_url") val image_url: String?,
+    @ColumnInfo(name = "restaurant_url") val url: String?,
+    @ColumnInfo(name = "restaurant_rating") val rating: Double?,
+    @ColumnInfo(name = "restaurant_price") val price: String?
 )
 
 data class Categories(val alias: String?, val title: String?)

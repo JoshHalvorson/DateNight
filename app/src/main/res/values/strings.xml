@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">DateNight</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCFuItPUR22twEc93LmnBKIS6Xp_vMWPI8</string>
+    <string name="database_playlist_name">database-restaurants</string>
 </resources>

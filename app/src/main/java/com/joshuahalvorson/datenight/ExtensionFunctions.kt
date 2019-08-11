@@ -8,6 +8,8 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
 import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
+import com.joshuahalvorson.datenight.model.Businesses
+import com.joshuahalvorson.datenight.model.SavedRestaurant
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.content_random_restaurant.*
 
@@ -47,4 +49,15 @@ fun View.openUrlOnClick(url: String, context: Context) {
         val intent = Intent(Intent.ACTION_VIEW, uri)
         startActivity(context, intent, null)
     }
+}
+
+fun Businesses.toSavedRestaurant() = this.id?.let { id ->
+    SavedRestaurant(
+        id,
+        this.name,
+        this.image_url,
+        this.url,
+        this.rating,
+        this.price
+    )
 }
