@@ -9,13 +9,13 @@ import com.joshuahalvorson.datenight.model.SavedRestaurant
 @Dao
 interface SavedRestaurantsDao {
     @Query("SELECT * FROM saved_restaurants")
-    fun getAllPlaylists(): Array<SavedRestaurant>
+    fun getAllRestaurants(): Array<SavedRestaurant>
 
     @Query("SELECT * FROM saved_restaurants WHERE restaurant_id = (:restaurantId)")
-    fun getPlaylistById(restaurantId: String): Boolean
+    fun getRestaurantById(restaurantId: String): Boolean
 
     @Query("DELETE FROM saved_restaurants WHERE restaurant_id = (:restaurantId)")
-    fun deletePlaylistById(restaurantId: String)
+    fun deleteRestaurantById(restaurantId: String)
 
     @Insert
     fun insertAll(vararg restaurants: SavedRestaurant)
