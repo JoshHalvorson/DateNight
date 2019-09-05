@@ -31,13 +31,18 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(applicationContext, MainActivity::class.java))
         }
 
-        signInButton.setOnClickListener {
-            blockstackSession().redirectUserToSignIn { errorResult ->
-                if (errorResult.hasErrors) {
-                    Toast.makeText(this, "error: " + errorResult.error, Toast.LENGTH_SHORT).show()
+        if (blockstackSession().isUserSignedIn()) {
+            startActivity(Intent(applicationContext, MainActivity::class.java))
+        } else {
+            signInButton.setOnClickListener {
+                blockstackSession().redirectUserToSignIn { errorResult ->
+                    if (errorResult.hasErrors) {
+                        Toast.makeText(this, "error: " + errorResult.error, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
+
 
         if (intent?.action == Intent.ACTION_VIEW) {
             handleAuthResponse(intent)
