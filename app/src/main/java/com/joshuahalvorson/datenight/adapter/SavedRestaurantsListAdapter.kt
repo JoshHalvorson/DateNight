@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.saved_restaurant_list_item.view.*
 
 class SavedRestaurantsListAdapter(
-    private val restaurants: Array<SavedRestaurant>,
+    private val restaurants: ArrayList<SavedRestaurant>,
     private val callback: OnListItemClick
 ) : RecyclerView.Adapter<SavedRestaurantsListAdapter.ViewHolder>() {
 

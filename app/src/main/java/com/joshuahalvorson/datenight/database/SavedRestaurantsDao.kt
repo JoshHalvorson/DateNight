@@ -9,7 +9,7 @@ import com.joshuahalvorson.datenight.model.SavedRestaurant
 @Dao
 interface SavedRestaurantsDao {
     @Query("SELECT * FROM saved_restaurants")
-    fun getAllRestaurants(): Array<SavedRestaurant>
+    fun getAllRestaurants(): List<SavedRestaurant>
 
     @Query("SELECT * FROM saved_restaurants WHERE restaurant_id = (:restaurantId)")
     fun getRestaurantById(restaurantId: String): Boolean

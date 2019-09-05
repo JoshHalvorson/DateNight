@@ -37,17 +37,26 @@ import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.blockstack.android.sdk.BlockstackSession
+import org.blockstack.android.sdk.model.GetFileOptions
+import org.blockstack.android.sdk.model.PutFileOptions
+import org.blockstack.android.sdk.model.toBlockstackConfig
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 import kotlin.random.Random
 
 class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
+    companion object {
+        const val IDS_FILE_NAME = "saved_res_ids.txt"
+    }
 
     @Inject
     lateinit var yelpViewModelFactory: YelpViewModelFactory
     private lateinit var yelpViewModel: YelpViewModel
     private lateinit var deviceLocation: Location
     private lateinit var mMap: GoogleMap
+
+    private var _blockstackSession: BlockstackSession? = null
 
     private var db: RestaurantDatabase? = null
     private var lastIndex = 0
@@ -70,6 +79,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             Room.databaseBuilder(it,
                 RestaurantDatabase::class.java, getString(R.string.database_playlist_name)).build()
         }
+
+        val config = "https://joshhalvorson.github.io/blockstack-android-web-app/public/"
+            .toBlockstackConfig(arrayOf(org.blockstack.android.sdk.Scope.StoreWrite))
+
+        _blockstackSession = BlockstackSession(context, config)
 
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
@@ -185,18 +199,51 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
 
         save_for_later_button.setOnClickListener {
-            GlobalScope.launch(Dispatchers.IO) {
-                businesses.toSavedRestaurant()?.let { savedRestaurant ->
-                    db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+            save_for_later_button.isEnabled = false
+            if (blockstackSession().isUserSignedIn()) {
+                val putOptions = PutFileOptions()
+                val getOptions = GetFileOptions()
+                businesses.id?.let { it1 ->
+                    blockstackSession().getFile(IDS_FILE_NAME, getOptions) { getFileResult ->
+                        var result = getFileResult.value
+                        if (result == null) {
+                            result = ""
+                        }
+                        blockstackSession().putFile(
+                            IDS_FILE_NAME, "$result$it1,", putOptions
+                        ) { readURLResult ->
+                            if (readURLResult.hasValue) {
+                                val readURL = readURLResult.value!!
+                                activity?.runOnUiThread {
+                                    Toast.makeText(
+                                        context,
+                                        "Saved ${businesses.name} for later!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    save_for_later_button.isEnabled = true
+                                }
+                            } else {
+                                Toast.makeText(context, "error: " + readURLResult.error, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
+                //TODO("Play animation for saved for later button")
+            } else {
+                GlobalScope.launch(Dispatchers.IO) {
+                    businesses.toSavedRestaurant()?.let { savedRestaurant ->
+                        db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+                    }
+                }
+                Toast.makeText(
+                    context,
+                    "Saved ${businesses.name} for later!",
+                    Toast.LENGTH_LONG
+                ).show()
+                save_for_later_button.isEnabled = true
             }
-            Toast.makeText(
-                context,
-                "Saved ${businesses.name} for later!",
-                Toast.LENGTH_LONG
-            ).show()
-            //TODO("Play animation for saved for later button")
         }
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -243,5 +290,14 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    private fun blockstackSession(): BlockstackSession {
+        val session = _blockstackSession
+        if (session != null) {
+            return session
+        } else {
+            throw IllegalStateException("No session.")
+        }
     }
 }
