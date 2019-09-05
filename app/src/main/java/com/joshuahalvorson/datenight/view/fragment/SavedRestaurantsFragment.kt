@@ -28,13 +28,13 @@ import com.joshuahalvorson.datenight.model.SavedRestaurant
 import com.joshuahalvorson.datenight.openUrlOnClick
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
-import kotlinx.android.synthetic.main.content_random_restaurant.*
 import kotlinx.android.synthetic.main.content_saved_restaurants.*
 import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
@@ -64,6 +64,8 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
 
         }
 
+        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_HIDDEN
+
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
@@ -81,9 +83,8 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                         object: SavedRestaurantsListAdapter.OnListItemClick {
                             override fun onListItemClick(restaurant: SavedRestaurant?) {
                                 restaurant?.id?.let { id -> getRestaurant(id) }
-                                bottom_sheet_restaurant_details.visibility = View.GONE
+                                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_HIDDEN
                             }
-
                         }
                     )
                 }
@@ -102,9 +103,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
 
     private fun setBottomSheetContent(businesses: Businesses) {
         //TODO("Fix crash when pressing multiple times on item, has to do with the network call for reviews")
-        //TODO("Fix layout, bottom sheet hides last item")
-        bottom_sheet_restaurant_details.visibility = View.VISIBLE
-        bottom_sheet_restaurant_details.animateViewWithYoYo(Techniques.SlideInUp, 500, 0)
+        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_COLLAPSED
         mMap.clear()
         bottom_sheet_restaurant_title.text = businesses.name
         bottom_sheet_restaurant_categories.text = ""

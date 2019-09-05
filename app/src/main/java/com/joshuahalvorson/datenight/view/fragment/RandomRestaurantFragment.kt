@@ -23,6 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.joshuahalvorson.datenight.*
 import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
@@ -74,6 +75,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
+        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_HIDDEN
+
         getLocation()
 
         new_restaurant_button.setOnClickListener {
@@ -96,7 +99,6 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
     private fun displayRestaurant() {
         restaurant_image_progress_circle.visibility = View.VISIBLE
-        bottom_sheet_restaurant_details.visibility = View.VISIBLE
         val index = Random.nextInt(0, restaurantsList.size - 1)
         if (lastIndex != index) {
             Picasso.get()
@@ -135,6 +137,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {
+        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_COLLAPSED
         mMap.clear()
         bottom_sheet_restaurant_title.text = businesses.name
         bottom_sheet_restaurant_categories.text = ""

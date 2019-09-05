@@ -24,7 +24,7 @@
     <style name="AppStandardBottomSheet">
         <item name="shapeAppearance">?attr/shapeAppearanceLargeComponent</item>
         <item name="android:elevation">10dp</item>
-        <item name="behavior_hideable">false</item>
+        <item name="behavior_hideable">true</item>
         <item name="behavior_skipCollapsed">false</item>
         <item name="behavior_peekHeight">60dp</item>
         <item name="behavior_fitToContents">false</item>
