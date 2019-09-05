@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#a9b4c2</color>
     <color name="colorAccent">#D81B60</color>
     <color name="colorPrimaryDarkOpaque">#ADA9B4C2</color>
+    <color name="colorWhite">#FFFFFFFF</color>
+    <color name="colorBlockstackPurple">#2D1739</color>
 </resources>
