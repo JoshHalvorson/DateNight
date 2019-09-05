@@ -102,7 +102,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {
-        //TODO("Fix crash when pressing multiple times on item, has to do with the network call for reviews")
         BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_COLLAPSED
         mMap.clear()
         bottom_sheet_restaurant_title.text = businesses.name
@@ -132,11 +131,12 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
 
         businesses.alias?.let { alias ->
             yelpViewModel.getRestaurantReviews(alias).observe(this, Observer { response ->
-                Log.i("reviewResponse", "${response.reviews?.size}")
                 bottom_sheet_restaurant_reviews.apply {
-                    layoutManager = LinearLayoutManager(context)
-                    response.reviews?.let { reviews ->
-                        adapter = RestaurantReviewsListAdapter(reviews)
+                    if (response != null) {
+                        layoutManager = LinearLayoutManager(context)
+                        response.reviews?.let { reviews ->
+                            adapter = RestaurantReviewsListAdapter(reviews)
+                        }
                     }
                 }
             })
