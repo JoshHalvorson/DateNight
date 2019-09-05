@@ -83,6 +83,14 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             displayRestaurant()
         }
 
+        show_restaurant_info.setOnClickListener {
+            if (BottomSheetBehavior.from(bottom_sheet_restaurant_details).state == BottomSheetBehavior.STATE_COLLAPSED){
+                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_EXPANDED
+            } else if (BottomSheetBehavior.from(bottom_sheet_restaurant_details).state == BottomSheetBehavior.STATE_HIDDEN) {
+                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+
     }
 
     private fun getRestaurants() {
