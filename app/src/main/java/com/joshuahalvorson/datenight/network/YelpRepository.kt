@@ -8,6 +8,7 @@ import com.joshuahalvorson.datenight.BuildConfig
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.ResponseBase
 import com.joshuahalvorson.datenight.model.ReviewResponse
+import io.reactivex.Observable
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,8 +20,8 @@ class YelpRepository(application: Application) {
     private var reviewResponse = MutableLiveData<ReviewResponse>()
     private var businessResponse = MutableLiveData<Businesses>()
 
-    fun getLocalRestaurantData(type: String, lat: Double, lon: Double): MutableLiveData<ResponseBase> {
-        val call =
+    fun getLocalRestaurantData(type: String, lat: Double, lon: Double): Observable<ResponseBase>? {
+        /*val call =
             yelpApiService?.getLocalRestaurants(BuildConfig.api_key, type, lat, lon, 50)
         call?.enqueue(object : Callback<ResponseBase> {
             override fun onFailure(call: Call<ResponseBase>, t: Throwable) {
@@ -30,8 +31,8 @@ class YelpRepository(application: Application) {
             override fun onResponse(call: Call<ResponseBase>, response: Response<ResponseBase>) {
                 responseBase.postValue(response.body())
             }
-        })
-        return responseBase
+        })*/
+        return yelpApiService?.getLocalRestaurants(BuildConfig.api_key, type, lat, lon, 50)
     }
 
     fun getRestaurantReviews(id: String): MutableLiveData<ReviewResponse> {

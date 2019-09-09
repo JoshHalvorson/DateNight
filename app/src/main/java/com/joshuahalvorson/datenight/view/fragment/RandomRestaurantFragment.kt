@@ -2,7 +2,6 @@ package com.joshuahalvorson.datenight.view.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -32,6 +31,9 @@ import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.content_random_restaurant.*
 import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +51,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     companion object {
         const val IDS_FILE_NAME = "saved_res_ids.txt"
     }
+
+    private var disposable: Disposable? = null
 
     @Inject
     lateinit var yelpViewModelFactory: YelpViewModelFactory
@@ -76,8 +80,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
 
         db = context?.let {
-            Room.databaseBuilder(it,
-                RestaurantDatabase::class.java, getString(R.string.database_playlist_name)).build()
+            Room.databaseBuilder(
+                it,
+                RestaurantDatabase::class.java, getString(R.string.database_playlist_name)
+            ).build()
         }
 
         val config = "https://joshhalvorson.github.io/blockstack-android-web-app/public/"
@@ -89,7 +95,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.restaurant_map) as? SupportMapFragment
         mapFragment?.getMapAsync(this)
 
-        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_HIDDEN
+        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
+            BottomSheetBehavior.STATE_HIDDEN
 
         getLocation()
 
@@ -98,25 +105,34 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
 
         show_restaurant_info.setOnClickListener {
-            if (BottomSheetBehavior.from(bottom_sheet_restaurant_details).state == BottomSheetBehavior.STATE_COLLAPSED){
-                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_EXPANDED
+            if (BottomSheetBehavior.from(bottom_sheet_restaurant_details).state == BottomSheetBehavior.STATE_COLLAPSED) {
+                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
+                    BottomSheetBehavior.STATE_EXPANDED
             } else if (BottomSheetBehavior.from(bottom_sheet_restaurant_details).state == BottomSheetBehavior.STATE_HIDDEN) {
-                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_COLLAPSED
+                BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
+                    BottomSheetBehavior.STATE_COLLAPSED
             }
         }
 
     }
 
+    @SuppressLint("CheckResult")
     private fun getRestaurants() {
-        yelpViewModel.getLocalRestaurants(
+        disposable = yelpViewModel.getLocalRestaurants(
             "restaurant",
             deviceLocation.latitude,
             deviceLocation.longitude
         )
-            .observe(this, Observer { responseBase ->
-                restaurantsList.addAll(responseBase.businesses)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({ list ->
+                restaurantsList.addAll(list.businesses)
                 displayRestaurant()
-            })
+            },
+                { error ->
+                    Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG).show()
+                }
+            )
     }
 
     private fun displayRestaurant() {
@@ -159,7 +175,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {
-        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state = BottomSheetBehavior.STATE_COLLAPSED
+        BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
+            BottomSheetBehavior.STATE_COLLAPSED
         mMap.clear()
         bottom_sheet_restaurant_title.text = businesses.name
         bottom_sheet_restaurant_categories.text = ""
@@ -223,7 +240,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                                     save_for_later_button.isEnabled = true
                                 }
                             } else {
-                                Toast.makeText(context, "error: " + readURLResult.error, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "error: " + readURLResult.error,
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
@@ -299,5 +320,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         } else {
             throw IllegalStateException("No session.")
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        disposable?.dispose()
     }
 }

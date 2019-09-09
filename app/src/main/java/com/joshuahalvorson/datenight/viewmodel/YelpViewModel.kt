@@ -6,12 +6,13 @@ import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.ResponseBase
 import com.joshuahalvorson.datenight.model.ReviewResponse
 import com.joshuahalvorson.datenight.network.YelpRepository
+import io.reactivex.Observable
 
 class YelpViewModel(private var yelpRepository: YelpRepository) : ViewModel() {
 
-    private lateinit var responseBase: MutableLiveData<ResponseBase>
+    private lateinit var restaurantsList: MutableLiveData<ResponseBase>
 
-    fun getLocalRestaurants(type: String, lat: Double, lon: Double): MutableLiveData<ResponseBase> {
+    fun getLocalRestaurants(type: String, lat: Double, lon: Double): Observable<ResponseBase>? {
         return yelpRepository.getLocalRestaurantData(type, lat, lon)
     }
 
