@@ -29,6 +29,8 @@ class LoginActivity : AppCompatActivity() {
         signInButton.isEnabled = true
 
         continue_as_guest_button.setOnClickListener {
+            progressBar.visibility = View.VISIBLE
+            cardView.visibility = View.GONE
             startActivity(Intent(applicationContext, MainActivity::class.java))
         }
 
@@ -44,7 +46,6 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
-
 
         if (intent?.action == Intent.ACTION_VIEW) {
             handleAuthResponse(intent)
