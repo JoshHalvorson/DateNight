@@ -32,4 +32,12 @@
         <item name="behavior_expandedOffset">20</item>
     </style>
 
+    <style name="ButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:backgroundTint">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>
