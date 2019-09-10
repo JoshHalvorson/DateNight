@@ -1,10 +1,11 @@
 package com.joshuahalvorson.datenight.view
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.joshuahalvorson.datenight.R
 import kotlinx.android.synthetic.main.activity_login.*
 import org.blockstack.android.sdk.BlockstackSession
@@ -37,7 +38,8 @@ class LoginActivity : AppCompatActivity() {
             signInButton.setOnClickListener {
                 blockstackSession().redirectUserToSignIn { errorResult ->
                     if (errorResult.hasErrors) {
-                        Toast.makeText(this, "error: " + errorResult.error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "error: " + errorResult.error, Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
@@ -73,6 +75,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleAuthResponse(intent: Intent) {
+        cardView.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
+        authenticating_text.visibility = View.VISIBLE
         val response = intent.data.query
         signInButton.isEnabled = false
         continue_as_guest_button.isEnabled = false
@@ -91,7 +96,8 @@ class LoginActivity : AppCompatActivity() {
                             onSignIn(userData)
                         }
                     } else {
-                        Toast.makeText(this, "error: " + userDataResult.error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "error: " + userDataResult.error, Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
