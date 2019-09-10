@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +16,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.daimajia.androidanimations.library.Techniques
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationServices.getFusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -24,9 +26,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.joshuahalvorson.datenight.*
+import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
+import com.joshuahalvorson.datenight.view.MainActivity
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import com.squareup.picasso.Callback
@@ -52,19 +56,20 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         const val IDS_FILE_NAME = "saved_res_ids.txt"
     }
 
-    private var disposable: Disposable? = null
-
     @Inject
     lateinit var yelpViewModelFactory: YelpViewModelFactory
     private lateinit var yelpViewModel: YelpViewModel
-    private lateinit var deviceLocation: Location
     private lateinit var mMap: GoogleMap
 
     private var _blockstackSession: BlockstackSession? = null
-
+    private var disposable: Disposable? = null
+    private var deviceLocation: Location? = null
     private var db: RestaurantDatabase? = null
     private var lastIndex = 0
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
+
+    private var mLocationRequest: LocationRequest? = null
+    private var locationCallback: LocationCallback? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,6 +103,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
             BottomSheetBehavior.STATE_HIDDEN
 
+        setUpLocationUpdates()
         getLocation()
 
         new_restaurant_button.setOnClickListener {
@@ -113,26 +119,55 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     BottomSheetBehavior.STATE_COLLAPSED
             }
         }
+    }
 
+    private fun setUpLocationUpdates() {
+        mLocationRequest = LocationRequest()
+        mLocationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest?.interval = 1000
+        mLocationRequest?.fastestInterval = 500
+        val builder = LocationSettingsRequest.Builder()
+        builder.addLocationRequest(mLocationRequest!!)
+        val locationSettingsRequest = builder.build()
+        val settingsClient =
+            LocationServices.getSettingsClient(activity as MainActivity)
+        settingsClient.checkLocationSettings(locationSettingsRequest)
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult?) {
+                updateDeviceLocation(p0?.lastLocation)
+            }
+        }
+    }
+
+    private fun updateDeviceLocation(location: Location?) {
+        deviceLocation = location
+        getFusedLocationProviderClient(activity as MainActivity).removeLocationUpdates(locationCallback)
+        getRestaurants()
     }
 
     @SuppressLint("CheckResult")
     private fun getRestaurants() {
-        disposable = yelpViewModel.getLocalRestaurants(
-            "restaurant",
-            deviceLocation.latitude,
-            deviceLocation.longitude
-        )
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ list ->
-                restaurantsList.addAll(list.businesses)
-                displayRestaurant()
-            },
-                { error ->
-                    Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG).show()
-                }
-            )
+        disposable = deviceLocation?.latitude?.let { lat ->
+            deviceLocation?.longitude?.let { lon ->
+                yelpViewModel.getLocalRestaurants(
+                    "restaurant",
+                    lat,
+                    lon
+                )
+                    ?.subscribeOn(Schedulers.io())
+                    ?.observeOn(AndroidSchedulers.mainThread())
+                    ?.subscribe({ list ->
+                        restaurantsList.addAll(list.businesses)
+                        displayRestaurant()
+                    },
+                        { error ->
+                            Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG)
+                                .show()
+                        }
+                    )
+            }
+        }
     }
 
     private fun displayRestaurant() {
@@ -286,22 +321,28 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 this,
                 "This application needs access to your location to display restaurants in your area.",
                 874,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             )
             getLocation()
         } else {
             val fusedLocationClient =
-                context?.let { LocationServices.getFusedLocationProviderClient(it) }
+                context?.let { getFusedLocationProviderClient(it) }
             fusedLocationClient?.lastLocation?.addOnSuccessListener { location: Location? ->
                 Log.i("LastLocation", location.toString())
                 location?.let { deviceLocation = location }
-                getRestaurants()
+                if (deviceLocation == null) {
+                    fusedLocationClient.requestLocationUpdates(mLocationRequest, locationCallback, Looper.myLooper())
+                } else {
+                    getRestaurants()
+                }
+            }?.addOnFailureListener {
+                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
             }
         }
     }
 
     private fun hasLocationPermission(): Boolean {
-        return EasyPermissions.hasPermissions(context!!, Manifest.permission.ACCESS_COARSE_LOCATION)
+        return EasyPermissions.hasPermissions(context!!, Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     override fun onRequestPermissionsResult(
