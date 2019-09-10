@@ -154,7 +154,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                                 )
                         }
                         withContext(Dispatchers.Main) {
-                            saved_restaurants_progress_circle.visibility = View.GONE
+                            saved_restaurants_progress_circle?.let { it.visibility = View.GONE }
                             adapter.notifyDataSetChanged()
                         }
                     }

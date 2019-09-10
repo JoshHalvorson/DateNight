@@ -54,6 +54,7 @@ import kotlin.random.Random
 class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     companion object {
         const val IDS_FILE_NAME = "saved_res_ids.txt"
+        const val TAG = "RandomRestFrag"
     }
 
     @Inject
@@ -162,8 +163,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                         displayRestaurant()
                     },
                         { error ->
-                            Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG)
-                                .show()
+                            Log.i(TAG + " getRest", error.message)
                         }
                     )
             }
@@ -183,7 +183,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     }
 
                     override fun onError(e: Exception?) {
-                        Toast.makeText(context, e?.localizedMessage, Toast.LENGTH_LONG).show()
+                        Log.i(TAG + " picasso", e?.localizedMessage)
+                        //Toast.makeText(context, e?.localizedMessage, Toast.LENGTH_LONG).show()
                     }
 
                 })
@@ -275,11 +276,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                                     save_for_later_button.isEnabled = true
                                 }
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "error: " + readURLResult.error,
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Log.i(TAG + " putFile", readURLResult.error)
                             }
                         }
                     }
@@ -335,8 +332,6 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 } else {
                     getRestaurants()
                 }
-            }?.addOnFailureListener {
-                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
             }
         }
     }
