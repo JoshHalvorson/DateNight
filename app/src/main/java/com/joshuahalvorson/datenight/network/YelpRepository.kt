@@ -49,8 +49,8 @@ class YelpRepository(application: Application) {
         return reviewResponse
     }
 
-    fun getRestaurant(id: String): MutableLiveData<Businesses> {
-        val call = yelpApiService?.getRestaurant(BuildConfig.api_key, id)
+    fun getRestaurant(id: String): Observable<Businesses>? {
+        /*val call = yelpApiService?.getRestaurant(BuildConfig.api_key, id)
         call?.enqueue(object: Callback<Businesses> {
             override fun onFailure(call: Call<Businesses>, t: Throwable) {
                 Log.i("businessResponse", t.localizedMessage)
@@ -60,8 +60,8 @@ class YelpRepository(application: Application) {
                 businessResponse.postValue(response.body())
             }
 
-        })
-        return businessResponse
+        })*/
+        return yelpApiService?.getRestaurant(BuildConfig.api_key, id)
     }
 
 }

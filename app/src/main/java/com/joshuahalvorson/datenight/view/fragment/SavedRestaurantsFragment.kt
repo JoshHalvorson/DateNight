@@ -1,10 +1,11 @@
 package com.joshuahalvorson.datenight.view.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -28,11 +29,14 @@ import com.joshuahalvorson.datenight.openUrlOnClick
 import com.joshuahalvorson.datenight.toSavedRestaurant
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.content_saved_restaurants.*
 import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.blockstack.android.sdk.BlockstackSession
 import org.blockstack.android.sdk.model.GetFileOptions
 import org.blockstack.android.sdk.model.toBlockstackConfig
@@ -103,13 +107,19 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
         )
         saved_restaurants_list.layoutManager = LinearLayoutManager(context)
         saved_restaurants_list.adapter = adapter
-
+        saved_restaurants_progress_circle.visibility = View.VISIBLE
         if (!blockstackSession().isUserSignedIn()) {
             GlobalScope.launch(Dispatchers.IO) {
                 db?.savedRestaurantsDao()?.getAllRestaurants()?.let {
                     savedRestaurants.clear()
                     savedRestaurants.addAll(it)
-                    adapter.notifyDataSetChanged()
+                    withContext(Dispatchers.Main) {
+                        saved_restaurants_progress_circle.visibility = View.GONE
+                        adapter.notifyDataSetChanged()
+                        if (savedRestaurants.size <= 0) {
+                            no_restaurants_saved_text.visibility = View.VISIBLE
+                        }
+                    }
                 }
             }
         } else {
@@ -120,39 +130,61 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
             ) { getFileResult ->
                 val result: String = getFileResult.value.toString()
                 if (result == "null") {
-                    //no saved restaurants
+                    no_restaurants_saved_text.visibility = View.VISIBLE
                 } else {
-                    val listIds = result.split(",").toMutableList()
-                    listIds.removeAt(listIds.size - 1)
-                    val set = HashSet<String>()
-                    set.addAll(listIds)
-                    listIds.clear()
-                    listIds.addAll(set)
-                    listIds.forEach {
-                        yelpViewModel.getRestaurant(it)
-                            .observe(viewLifecycleOwner, Observer { businessResponse ->
-                                businessResponse?.let { business ->
-                                    business.toSavedRestaurant()?.let { savedRes ->
-                                        if (!savedRestaurants.contains(savedRes)) {
-                                            savedRestaurants.add(savedRes)
-                                            adapter.notifyItemInserted(savedRestaurants.size - 1)
-                                        }
+                    val listIds = result.split(",").toMutableSet()
+                    listIds.remove("")
+                    GlobalScope.launch(Dispatchers.IO) {
+                        listIds.forEach {
+                            Thread.sleep(200)
+                            yelpViewModel.getRestaurant(it)
+                                ?.subscribeOn(Schedulers.io())
+                                ?.observeOn(AndroidSchedulers.mainThread())
+                                ?.subscribe({ savedRes ->
+                                    savedRes.toSavedRestaurant()
+                                        ?.let { it1 -> savedRestaurants.add(it1) }
+                                },
+                                    { error ->
+                                        Toast.makeText(
+                                            context,
+                                            error.localizedMessage,
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
-                                }
-                            })
+                                )
+                        }
+                        withContext(Dispatchers.Main) {
+                            saved_restaurants_progress_circle.visibility = View.GONE
+                            adapter.notifyDataSetChanged()
+                        }
                     }
                 }
             }
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun getRestaurant(id: String) {
-        yelpViewModel.getRestaurant(id).observe(this, Observer {
+        yelpViewModel.getRestaurant(id)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({ restaurant ->
+                setBottomSheetContent(restaurant)
+            },
+                { error ->
+                    Toast.makeText(
+                        context,
+                        error.localizedMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        /*yelpViewModel.getRestaurant(id).observe(this, Observer {
             it?.let { restaurant ->
                 Log.i("businessResponse", restaurant.name)
                 setBottomSheetContent(restaurant)
             }
-        })
+        })*/
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {

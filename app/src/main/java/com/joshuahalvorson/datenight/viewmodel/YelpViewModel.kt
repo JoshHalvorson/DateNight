@@ -20,7 +20,7 @@ class YelpViewModel(private var yelpRepository: YelpRepository) : ViewModel() {
         return yelpRepository.getRestaurantReviews(id)
     }
 
-    fun getRestaurant(id: String): MutableLiveData<Businesses> {
+    fun getRestaurant(id: String): Observable<Businesses>? {
         return yelpRepository.getRestaurant(id)
     }
 

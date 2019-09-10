@@ -31,6 +31,6 @@ interface YelpApiService {
     fun getRestaurant(
         @Header("Authorization") key: String,
         @Path("id") id: String
-    ): Call<Businesses>
+    ): Observable<Businesses>
 
 }
