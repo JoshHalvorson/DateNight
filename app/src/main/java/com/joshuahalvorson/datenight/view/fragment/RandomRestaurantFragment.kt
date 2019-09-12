@@ -43,6 +43,7 @@ import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.blockstack.android.sdk.BlockstackSession
 import org.blockstack.android.sdk.model.GetFileOptions
 import org.blockstack.android.sdk.model.PutFileOptions
@@ -143,7 +144,9 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
     private fun updateDeviceLocation(location: Location?) {
         deviceLocation = location
-        getFusedLocationProviderClient(activity as MainActivity).removeLocationUpdates(locationCallback)
+        getFusedLocationProviderClient(activity as MainActivity).removeLocationUpdates(
+            locationCallback
+        )
         getRestaurants()
     }
 
@@ -252,29 +255,42 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             })
         }
 
-        if (!savedRestaurantIds.contains(businesses.id)) {
-            save_for_later_button.visibility = View.VISIBLE
-            save_for_later_button.setOnClickListener {
-                save_for_later_button.isEnabled = false
-                if (blockstackSession().isUserSignedIn()) {
-                    updateRemoteSavedRestaurantsList(businesses)
-                    //TODO("Play animation for saved for later button")
-                } else {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        businesses.toSavedRestaurant()?.let { savedRestaurant ->
-                            db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+        GlobalScope.launch(Dispatchers.IO) {
+            businesses.toSavedRestaurant()?.let { savedRestaurant ->
+                db?.savedRestaurantsDao()?.let {
+                    val restaurantSavedInRoom = it.getRestaurantById(savedRestaurant.id)
+                    if (!savedRestaurantIds.contains(businesses.id) && restaurantSavedInRoom < 1) {
+                        withContext(Dispatchers.Main) {
+                            save_for_later_button.visibility = View.VISIBLE
+                            save_for_later_button.setOnClickListener {
+                                save_for_later_button.isEnabled = false
+                                if (blockstackSession().isUserSignedIn()) {
+                                    updateRemoteSavedRestaurantsList(businesses)
+                                    save_for_later_button.visibility = View.GONE
+                                    //TODO("Play animation for saved for later button")
+                                } else {
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        businesses.toSavedRestaurant()?.let { savedRestaurant ->
+                                            db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+                                            withContext(Dispatchers.Main) {
+                                                save_for_later_button.visibility = View.GONE
+                                            }
+                                        }
+                                    }
+                                    Toast.makeText(
+                                        context,
+                                        "Saved ${businesses.name} for later!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    save_for_later_button.isEnabled = true
+                                }
+                            }
                         }
+                    } else {
+                        save_for_later_button.visibility = View.GONE
                     }
-                    Toast.makeText(
-                        context,
-                        "Saved ${businesses.name} for later!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    save_for_later_button.isEnabled = true
                 }
             }
-        } else {
-            save_for_later_button.visibility = View.GONE
         }
     }
 
@@ -350,7 +366,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 Log.i("LastLocation", location.toString())
                 location?.let { deviceLocation = location }
                 if (deviceLocation == null) {
-                    fusedLocationClient.requestLocationUpdates(mLocationRequest, locationCallback, Looper.myLooper())
+                    fusedLocationClient.requestLocationUpdates(
+                        mLocationRequest,
+                        locationCallback,
+                        Looper.myLooper()
+                    )
                 } else {
                     getRestaurants()
                 }

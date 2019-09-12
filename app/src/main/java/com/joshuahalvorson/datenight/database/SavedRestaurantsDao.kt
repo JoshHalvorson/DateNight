@@ -11,8 +11,8 @@ interface SavedRestaurantsDao {
     @Query("SELECT * FROM saved_restaurants")
     fun getAllRestaurants(): List<SavedRestaurant>
 
-    @Query("SELECT * FROM saved_restaurants WHERE restaurant_id = (:restaurantId)")
-    fun getRestaurantById(restaurantId: String): Boolean
+    @Query("SELECT COUNT(restaurant_id) FROM saved_restaurants WHERE restaurant_id = (:restaurantId)")
+    fun getRestaurantById(restaurantId: String): Int
 
     @Query("DELETE FROM saved_restaurants WHERE restaurant_id = (:restaurantId)")
     fun deleteRestaurantById(restaurantId: String)
