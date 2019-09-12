@@ -3,6 +3,7 @@ package com.joshuahalvorson.datenight.view
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -16,6 +17,8 @@ import com.facebook.stetho.Stetho
 import com.google.android.material.navigation.NavigationView
 import com.joshuahalvorson.datenight.R
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.nav_header.*
+import kotlinx.android.synthetic.main.nav_header.view.*
 
 class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListener {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -33,6 +36,13 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
         setupActionBar(navController, appBarConfiguration)
 
         Stetho.initializeWithDefaults(applicationContext)
+
+        val name = intent?.extras?.get("userData").toString()
+        if (name != "null") {
+            nav_view.getHeaderView(0).logged_in_user_name.text = name
+        } else {
+            nav_view.getHeaderView(0).logged_in_user_name.visibility = View.GONE
+        }
     }
 
     private fun setupActionBar(navController: NavController, appBarConfig: AppBarConfiguration) {

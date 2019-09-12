@@ -25,8 +25,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-                app:titleTextColor="@color/colorPrimaryDark" />
+                app:titleTextColor="@color/colorPrimary" />
         </androidx.cardview.widget.CardView>
 
         <fragment
@@ -45,5 +44,6 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         android:visibility="visible"
+        app:headerLayout="@layout/nav_header"
         app:menu="@menu/nav_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

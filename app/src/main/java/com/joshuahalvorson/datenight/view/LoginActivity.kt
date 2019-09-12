@@ -35,7 +35,9 @@ class LoginActivity : AppCompatActivity() {
         }
 
         if (blockstackSession().isUserSignedIn()) {
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            intent.putExtra("userData", blockstackSession().loadUserData()?.profile?.name)
+            startActivity(intent)
         } else {
             signInButton.setOnClickListener {
                 blockstackSession().redirectUserToSignIn { errorResult ->
@@ -54,7 +56,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onSignIn(userData: UserData) {
-        startActivity(Intent(applicationContext, MainActivity::class.java))
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.putExtra("userData", userData.profile?.email)
+        startActivity(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {
