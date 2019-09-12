@@ -68,7 +68,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     private var db: RestaurantDatabase? = null
     private var lastIndex = 0
     private var restaurantsList: ArrayList<Businesses> = arrayListOf()
-
+    private var savedRestaurantIds: ArrayList<String> = arrayListOf()
     private var mLocationRequest: LocationRequest? = null
     private var locationCallback: LocationCallback? = null
 
@@ -149,6 +149,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("CheckResult")
     private fun getRestaurants() {
+        getRemoteSavedRestaurantsList(IDS_FILE_NAME)
         disposable = deviceLocation?.latitude?.let { lat ->
             deviceLocation?.longitude?.let { lon ->
                 yelpViewModel.getLocalRestaurants(
@@ -251,52 +252,73 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             })
         }
 
-        save_for_later_button.setOnClickListener {
-            save_for_later_button.isEnabled = false
-            if (blockstackSession().isUserSignedIn()) {
-                val putOptions = PutFileOptions()
-                val getOptions = GetFileOptions()
-                businesses.id?.let { it1 ->
-                    blockstackSession().getFile(IDS_FILE_NAME, getOptions) { getFileResult ->
-                        var result = getFileResult.value
-                        if (result == null) {
-                            result = ""
-                        }
-                        blockstackSession().putFile(
-                            IDS_FILE_NAME, "$result$it1,", putOptions
-                        ) { readURLResult ->
-                            if (readURLResult.hasValue) {
-                                val readURL = readURLResult.value!!
-                                activity?.runOnUiThread {
-                                    Toast.makeText(
-                                        context,
-                                        "Saved ${businesses.name} for later!",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    save_for_later_button.isEnabled = true
-                                }
-                            } else {
-                                Log.i(TAG + " putFile", readURLResult.error)
-                            }
+        if (!savedRestaurantIds.contains(businesses.id)) {
+            save_for_later_button.visibility = View.VISIBLE
+            save_for_later_button.setOnClickListener {
+                save_for_later_button.isEnabled = false
+                if (blockstackSession().isUserSignedIn()) {
+                    updateRemoteSavedRestaurantsList(businesses)
+                    //TODO("Play animation for saved for later button")
+                } else {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        businesses.toSavedRestaurant()?.let { savedRestaurant ->
+                            db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
                         }
                     }
+                    Toast.makeText(
+                        context,
+                        "Saved ${businesses.name} for later!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    save_for_later_button.isEnabled = true
                 }
-                //TODO("Play animation for saved for later button")
-            } else {
-                GlobalScope.launch(Dispatchers.IO) {
-                    businesses.toSavedRestaurant()?.let { savedRestaurant ->
-                        db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+            }
+        } else {
+            save_for_later_button.visibility = View.GONE
+        }
+    }
+
+    private fun getRemoteSavedRestaurantsList(fileName: String) {
+        val getOptions = GetFileOptions()
+        blockstackSession().getFile(IDS_FILE_NAME, getOptions) { getFileResult ->
+            var result = getFileResult.value
+            if (result == null) {
+                result = ""
+            }
+            savedRestaurantIds.clear()
+            savedRestaurantIds.addAll(result.toString().split(","))
+        }
+    }
+
+    private fun updateRemoteSavedRestaurantsList(businesses: Businesses) {
+        val putOptions = PutFileOptions()
+        val getOptions = GetFileOptions()
+        businesses.id?.let { it1 ->
+            blockstackSession().getFile(IDS_FILE_NAME, getOptions) { getFileResult ->
+                var result = getFileResult.value
+                if (result == null) {
+                    result = ""
+                }
+                blockstackSession().putFile(
+                    IDS_FILE_NAME, "$result$it1,", putOptions
+                ) { readURLResult ->
+                    if (readURLResult.hasValue) {
+                        val readURL = readURLResult.value!!
+                        activity?.runOnUiThread {
+                            Toast.makeText(
+                                context,
+                                "Saved ${businesses.name} for later!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            save_for_later_button.isEnabled = true
+                            getRemoteSavedRestaurantsList(IDS_FILE_NAME)
+                        }
+                    } else {
+                        Log.i(TAG + " putFile", readURLResult.error)
                     }
                 }
-                Toast.makeText(
-                    context,
-                    "Saved ${businesses.name} for later!",
-                    Toast.LENGTH_LONG
-                ).show()
-                save_for_later_button.isEnabled = true
             }
         }
-
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
