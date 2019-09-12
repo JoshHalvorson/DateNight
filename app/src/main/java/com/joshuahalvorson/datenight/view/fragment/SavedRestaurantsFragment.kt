@@ -2,6 +2,7 @@ package com.joshuahalvorson.datenight.view.fragment
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.room.Room
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -18,15 +22,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.joshuahalvorson.datenight.App
-import com.joshuahalvorson.datenight.R
+import com.joshuahalvorson.datenight.*
 import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
 import com.joshuahalvorson.datenight.adapter.SavedRestaurantsListAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
-import com.joshuahalvorson.datenight.openUrlOnClick
-import com.joshuahalvorson.datenight.toSavedRestaurant
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -39,6 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.blockstack.android.sdk.BlockstackSession
 import org.blockstack.android.sdk.model.GetFileOptions
+import org.blockstack.android.sdk.model.PutFileOptions
 import org.blockstack.android.sdk.model.toBlockstackConfig
 import javax.inject.Inject
 
@@ -107,7 +109,35 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
         )
         saved_restaurants_list.layoutManager = LinearLayoutManager(context)
         saved_restaurants_list.adapter = adapter
+        (saved_restaurants_list.itemAnimator as SimpleItemAnimator)
+            .supportsChangeAnimations = false
+        val swipeHandler = object : SwipeToDeleteCallback(context!!) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val item = savedRestaurants[viewHolder.adapterPosition]
+                if (!blockstackSession().isUserSignedIn()) {
+                    //delete from roomdb
+                    GlobalScope.launch(Dispatchers.IO) {
+                        db?.savedRestaurantsDao()?.deleteRestaurantById(item.id)?.let {
+                            withContext(Dispatchers.Main) {
+                                savedRestaurants.remove(item)
+                                adapter.notifyDataSetChanged()
+                                if (savedRestaurants.size <= 0) {
+                                    no_restaurants_saved_text.visibility = View.VISIBLE
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //delte from gaia file
+                    removeRestaurantFromRemoteList(adapter, savedRestaurants, item)
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(saved_restaurants_list)
+
         saved_restaurants_progress_circle.visibility = View.VISIBLE
+
         if (!blockstackSession().isUserSignedIn()) {
             GlobalScope.launch(Dispatchers.IO) {
                 db?.savedRestaurantsDao()?.getAllRestaurants()?.let {
@@ -142,7 +172,10 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                                 ?.observeOn(AndroidSchedulers.mainThread())
                                 ?.subscribe({ savedRes ->
                                     savedRes.toSavedRestaurant()
-                                        ?.let { it1 -> savedRestaurants.add(it1) }
+                                        ?.let { it1 ->
+                                            savedRestaurants.add(it1)
+                                            adapter.notifyDataSetChanged()
+                                        }
                                 },
                                     { error ->
                                         Toast.makeText(
@@ -155,12 +188,53 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                         }
                         withContext(Dispatchers.Main) {
                             saved_restaurants_progress_circle?.let { it.visibility = View.GONE }
-                            adapter.notifyDataSetChanged()
+                            if (savedRestaurants.size <= 0) {
+                                no_restaurants_saved_text.visibility = View.VISIBLE
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun removeRestaurantFromRemoteList(adapter: SavedRestaurantsListAdapter, savedRestaurants: ArrayList<SavedRestaurant>, item: SavedRestaurant) {
+        val putOptions = PutFileOptions()
+        val getOptions = GetFileOptions()
+        blockstackSession().getFile(
+            RandomRestaurantFragment.IDS_FILE_NAME,
+            getOptions
+        ) { getFileResult ->
+            var result = getFileResult.value
+            if (result == null) {
+                result = ""
+            }
+            val list = result.toString().split(",").toMutableList()
+            list.remove(item.id)
+            val listIds = list.joinToString().replace("\\s".toRegex(), "")
+            blockstackSession().putFile(
+                RandomRestaurantFragment.IDS_FILE_NAME, "$listIds,", putOptions
+            ) { readURLResult ->
+                if (readURLResult.hasValue) {
+                    val readURL = readURLResult.value!!
+                    activity?.runOnUiThread {
+                        savedRestaurants.remove(item)
+                        adapter.notifyDataSetChanged()
+                        if (savedRestaurants.size <= 0) {
+                            no_restaurants_saved_text.visibility = View.VISIBLE
+                        }
+                        Toast.makeText(
+                            context,
+                            "Restaurant removed",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } else {
+                    Log.i(RandomRestaurantFragment.TAG + " putFile", readURLResult.error)
+                }
+            }
+        }
+
     }
 
     @SuppressLint("CheckResult")
@@ -179,12 +253,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                     ).show()
                 }
             )
-        /*yelpViewModel.getRestaurant(id).observe(this, Observer {
-            it?.let { restaurant ->
-                Log.i("businessResponse", restaurant.name)
-                setBottomSheetContent(restaurant)
-            }
-        })*/
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {
