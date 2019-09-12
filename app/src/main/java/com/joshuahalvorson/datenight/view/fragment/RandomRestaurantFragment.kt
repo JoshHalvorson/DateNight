@@ -149,7 +149,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("CheckResult")
     private fun getRestaurants() {
-        getRemoteSavedRestaurantsList(IDS_FILE_NAME)
+        getRemoteSavedRestaurantsList()
         disposable = deviceLocation?.latitude?.let { lat ->
             deviceLocation?.longitude?.let { lon ->
                 yelpViewModel.getLocalRestaurants(
@@ -278,7 +278,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun getRemoteSavedRestaurantsList(fileName: String) {
+    private fun getRemoteSavedRestaurantsList() {
         val getOptions = GetFileOptions()
         blockstackSession().getFile(IDS_FILE_NAME, getOptions) { getFileResult ->
             var result = getFileResult.value
@@ -311,7 +311,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                                 Toast.LENGTH_LONG
                             ).show()
                             save_for_later_button.isEnabled = true
-                            getRemoteSavedRestaurantsList(IDS_FILE_NAME)
+                            getRemoteSavedRestaurantsList()
                         }
                     } else {
                         Log.i(TAG + " putFile", readURLResult.error)
