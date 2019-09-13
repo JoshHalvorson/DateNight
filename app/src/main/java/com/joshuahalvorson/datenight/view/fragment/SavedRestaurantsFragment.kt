@@ -174,7 +174,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                                     savedRes.toSavedRestaurant()
                                         ?.let { it1 ->
                                             savedRestaurants.add(it1)
-                                            adapter.notifyDataSetChanged()
                                         }
                                 },
                                     { error ->
@@ -187,6 +186,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                                 )
                         }
                         withContext(Dispatchers.Main) {
+                            adapter.notifyDataSetChanged()
                             saved_restaurants_progress_circle?.let { it.visibility = View.GONE }
                             if (savedRestaurants.size <= 0) {
                                 no_restaurants_saved_text.visibility = View.VISIBLE
@@ -213,7 +213,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
             list.remove(item.id)
             val listIds = list.joinToString().replace("\\s".toRegex(), "")
             blockstackSession().putFile(
-                RandomRestaurantFragment.IDS_FILE_NAME, "$listIds,", putOptions
+                RandomRestaurantFragment.IDS_FILE_NAME, "$listIds", putOptions
             ) { readURLResult ->
                 if (readURLResult.hasValue) {
                     val readURL = readURLResult.value!!
@@ -223,11 +223,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                         if (savedRestaurants.size <= 0) {
                             no_restaurants_saved_text.visibility = View.VISIBLE
                         }
-                        Toast.makeText(
-                            context,
-                            "Restaurant removed",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
                 } else {
                     Log.i(RandomRestaurantFragment.TAG + " putFile", readURLResult.error)
