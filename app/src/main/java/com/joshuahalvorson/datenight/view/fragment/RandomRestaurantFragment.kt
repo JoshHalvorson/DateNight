@@ -215,6 +215,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {
+        save_for_later_button.visibility = View.GONE
         BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
             BottomSheetBehavior.STATE_COLLAPSED
         mMap.clear()
@@ -245,7 +246,6 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
         businesses.alias?.let { alias ->
             yelpViewModel.getRestaurantReviews(alias).observe(this, Observer { response ->
-                Log.i("reviewResponse", "${response.reviews?.size}")
                 bottom_sheet_restaurant_reviews.apply {
                     layoutManager = LinearLayoutManager(context)
                     response.reviews?.let { reviews ->
@@ -255,39 +255,46 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             })
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            businesses.toSavedRestaurant()?.let { savedRestaurant ->
-                db?.savedRestaurantsDao()?.let {
-                    val restaurantSavedInRoom = it.getRestaurantById(savedRestaurant.id)
-                    if (!savedRestaurantIds.contains(businesses.id) && restaurantSavedInRoom < 1) {
+        if (blockstackSession().isUserSignedIn() && !savedRestaurantIds.contains(businesses.id)) {
+            save_for_later_button.visibility = View.VISIBLE
+            save_for_later_button.visibility = View.VISIBLE
+            save_for_later_button.setOnClickListener {
+                save_for_later_button.isEnabled = false
+                if (blockstackSession().isUserSignedIn()) {
+                    updateRemoteSavedRestaurantsList(businesses)
+                    save_for_later_button.visibility = View.GONE
+                    save_for_later_button.isEnabled = true
+                }
+            }
+        } else {
+            GlobalScope.launch(Dispatchers.IO) {
+                var id = ""
+                businesses.id?.let { id = it }
+                val restaurantInRoomRb = db?.savedRestaurantsDao()?.getRestaurantById(id)
+                if (restaurantInRoomRb != null) {
+                    if (restaurantInRoomRb < 1) {
                         withContext(Dispatchers.Main) {
                             save_for_later_button.visibility = View.VISIBLE
-                            save_for_later_button.setOnClickListener {
-                                save_for_later_button.isEnabled = false
-                                if (blockstackSession().isUserSignedIn()) {
-                                    updateRemoteSavedRestaurantsList(businesses)
-                                    save_for_later_button.visibility = View.GONE
-                                    //TODO("Play animation for saved for later button")
-                                } else {
-                                    GlobalScope.launch(Dispatchers.IO) {
-                                        businesses.toSavedRestaurant()?.let { savedRestaurant ->
-                                            db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
-                                            withContext(Dispatchers.Main) {
-                                                save_for_later_button.visibility = View.GONE
-                                            }
-                                        }
+                        }
+                        save_for_later_button.setOnClickListener {
+                            save_for_later_button.isEnabled = false
+
+                            businesses.toSavedRestaurant()?.let { savedRestaurant ->
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(
+                                            context,
+                                            "Saved ${businesses.name} for later!",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        save_for_later_button.visibility = View.GONE
+                                        save_for_later_button.isEnabled = true
                                     }
-                                    Toast.makeText(
-                                        context,
-                                        "Saved ${businesses.name} for later!",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    save_for_later_button.isEnabled = true
                                 }
                             }
+
                         }
-                    } else {
-                        save_for_later_button.visibility = View.GONE
                     }
                 }
             }
