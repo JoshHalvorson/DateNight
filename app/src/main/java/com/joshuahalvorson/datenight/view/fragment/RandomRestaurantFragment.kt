@@ -248,8 +248,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             yelpViewModel.getRestaurantReviews(alias).observe(this, Observer { response ->
                 bottom_sheet_restaurant_reviews.apply {
                     layoutManager = LinearLayoutManager(context)
-                    response.reviews?.let { reviews ->
-                        adapter = RestaurantReviewsListAdapter(reviews)
+                    response?.let { response ->
+                        adapter = response.reviews?.let { RestaurantReviewsListAdapter(it) }
                     }
                 }
             })
