@@ -1,6 +1,10 @@
 package com.joshuahalvorson.datenight.model
 
-data class ReviewResponse(val reviews: List<Review>?, val total: Number?, val possible_languages: List<String>?)
+data class ReviewResponse(
+    val reviews: List<Review>?,
+    val total: Number?,
+    val possible_languages: List<String>?
+)
 
 data class Review(
     val id: String?,
@@ -11,4 +15,9 @@ data class Review(
     val user: User?
 )
 
-data class User(val id: String?, val profile_url: String?, val image_url: String?, val name: String?)
+data class User(
+    val id: String?,
+    val profile_url: String?,
+    val image_url: String?,
+    val name: String?
+)

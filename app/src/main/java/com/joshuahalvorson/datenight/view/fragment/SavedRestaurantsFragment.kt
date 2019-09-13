@@ -107,6 +107,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         )
+
         saved_restaurants_list.layoutManager = LinearLayoutManager(context)
         saved_restaurants_list.adapter = adapter
         (saved_restaurants_list.itemAnimator as SimpleItemAnimator)
@@ -115,7 +116,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = savedRestaurants[viewHolder.adapterPosition]
                 if (!blockstackSession().isUserSignedIn()) {
-                    //delete from roomdb
                     GlobalScope.launch(Dispatchers.IO) {
                         db?.savedRestaurantsDao()?.deleteRestaurantById(item.id)?.let {
                             withContext(Dispatchers.Main) {
@@ -128,7 +128,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                         }
                     }
                 } else {
-                    //delte from gaia file
                     removeRestaurantFromRemoteList(adapter, savedRestaurants, item)
                 }
             }
@@ -198,7 +197,11 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun removeRestaurantFromRemoteList(adapter: SavedRestaurantsListAdapter, savedRestaurants: ArrayList<SavedRestaurant>, item: SavedRestaurant) {
+    private fun removeRestaurantFromRemoteList(
+        adapter: SavedRestaurantsListAdapter,
+        savedRestaurants: ArrayList<SavedRestaurant>,
+        item: SavedRestaurant
+    ) {
         val putOptions = PutFileOptions()
         val getOptions = GetFileOptions()
         blockstackSession().getFile(
@@ -216,7 +219,6 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                 RandomRestaurantFragment.IDS_FILE_NAME, "$listIds", putOptions
             ) { readURLResult ->
                 if (readURLResult.hasValue) {
-                    val readURL = readURLResult.value!!
                     activity?.runOnUiThread {
                         savedRestaurants.remove(item)
                         adapter.notifyDataSetChanged()

@@ -1,7 +1,7 @@
 package com.joshuahalvorson.datenight.di
 
-import com.joshuahalvorson.datenight.view.fragment.SavedRestaurantsFragment
 import com.joshuahalvorson.datenight.view.fragment.RandomRestaurantFragment
+import com.joshuahalvorson.datenight.view.fragment.SavedRestaurantsFragment
 import dagger.Component
 import javax.inject.Singleton
 

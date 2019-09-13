@@ -1,7 +1,6 @@
 package com.joshuahalvorson.datenight.network
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.joshuahalvorson.datenight.BuildConfig
@@ -42,7 +41,10 @@ class YelpRepository(application: Application) {
                 Log.i("reviewResponse", t.localizedMessage)
             }
 
-            override fun onResponse(call: Call<ReviewResponse>, response: Response<ReviewResponse>) {
+            override fun onResponse(
+                call: Call<ReviewResponse>,
+                response: Response<ReviewResponse>
+            ) {
                 reviewResponse.postValue(response.body())
             }
         })

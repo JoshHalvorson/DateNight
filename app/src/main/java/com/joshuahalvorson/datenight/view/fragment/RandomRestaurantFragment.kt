@@ -188,9 +188,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
 
                     override fun onError(e: Exception?) {
                         Log.i(TAG + " picasso", e?.localizedMessage)
-                        //Toast.makeText(context, e?.localizedMessage, Toast.LENGTH_LONG).show()
                     }
-
                 })
             restaurant_name.text = restaurantsList[index].name
             restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)}"
@@ -326,7 +324,6 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     IDS_FILE_NAME, "$result$it1,", putOptions
                 ) { readURLResult ->
                     if (readURLResult.hasValue) {
-                        val readURL = readURLResult.value!!
                         activity?.runOnUiThread {
                             Toast.makeText(
                                 context,

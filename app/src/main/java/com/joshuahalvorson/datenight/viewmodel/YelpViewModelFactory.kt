@@ -6,7 +6,8 @@ import com.joshuahalvorson.datenight.network.YelpRepository
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
-class YelpViewModelFactory @Inject constructor(var yelpRepository: YelpRepository) : ViewModelProvider.Factory {
+class YelpViewModelFactory @Inject constructor(var yelpRepository: YelpRepository) :
+    ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return YelpViewModel(yelpRepository) as T

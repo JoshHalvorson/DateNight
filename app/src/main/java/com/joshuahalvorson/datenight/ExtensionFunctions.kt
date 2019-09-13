@@ -11,7 +11,6 @@ import com.daimajia.androidanimations.library.YoYo
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.content_random_restaurant.*
 
 
 fun ImageView.loadImageWithPicasso(image: Int) {

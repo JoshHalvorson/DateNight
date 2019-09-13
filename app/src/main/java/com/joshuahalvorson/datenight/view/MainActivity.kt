@@ -17,7 +17,6 @@ import com.facebook.stetho.Stetho
 import com.google.android.material.navigation.NavigationView
 import com.joshuahalvorson.datenight.R
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 
 class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListener {

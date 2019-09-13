@@ -3,7 +3,6 @@ package com.joshuahalvorson.datenight.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
 
 @Dao
