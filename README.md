@@ -2,5 +2,4 @@
 [![Build Status](https://travis-ci.com/JoshHalvorson/DateNight.svg?token=RG1TRL1toAEercepxmeq&branch=master)](https://travis-ci.com/JoshHalvorson/DateNight)
 
 ## About
-Gets random restaurants in your area and allows you to see reviews from other customers, see categories of the restaurants, and more. 
-Made using the yelp api (will add icons and such as their display requirments specify)
+Date Night uses the Yelp API to get random restaurants in your area and display them to you in an informative way. If you see a restaurant you like, you can save it for later, and when you're ready, view all the details again. Date Night also has the option to sign in with Blockstack, and save the restaurant's in the cloud.
