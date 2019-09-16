@@ -2,6 +2,7 @@ package com.joshuahalvorson.datenight.view
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -63,10 +64,11 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
         val retValue = super.onCreateOptionsMenu(menu)
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         if (navigationView == null) {
-
             menuInflater.inflate(R.menu.nav_menu, menu)
             return true
         }
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu, menu)
         return retValue
     }
 
@@ -74,6 +76,7 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
         when (item?.itemId) {
             android.R.id.home ->
                 drawer_layout.openDrawer(GravityCompat.START)
+            R.id.settingsFragment -> findNavController(R.id.nav_host_fragment).navigate(R.id.settingsFragment)
         }
         if (item != null) {
             return item.onNavDestinationSelected(findNavController(R.id.nav_host_fragment))

@@ -18,6 +18,8 @@ class LoginActivity : AppCompatActivity() {
 
     private var _blockstackSession: BlockstackSession? = null
 
+    private var fromSettings: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -31,7 +33,12 @@ class LoginActivity : AppCompatActivity() {
         continue_as_guest_button.setOnClickListener {
             progressBar.visibility = View.VISIBLE
             cardView.visibility = View.GONE
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            startActivity(
+                Intent(
+                    applicationContext,
+                    MainActivity::class.java
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            )
         }
 
         if (blockstackSession().isUserSignedIn()) {
@@ -58,6 +65,7 @@ class LoginActivity : AppCompatActivity() {
     private fun onSignIn(userData: UserData) {
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra("userData", userData.profile?.email)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
     }
 
