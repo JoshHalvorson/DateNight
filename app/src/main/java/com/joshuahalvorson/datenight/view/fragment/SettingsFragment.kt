@@ -2,13 +2,14 @@ package com.joshuahalvorson.datenight.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.view.LoginActivity
+import com.joshuahalvorson.datenight.view.MainActivity
 import kotlinx.android.synthetic.main.fragment_settings.*
 import org.blockstack.android.sdk.BlockstackSession
 import org.blockstack.android.sdk.model.toBlockstackConfig
@@ -36,8 +37,25 @@ class SettingsFragment : Fragment() {
             log_out_button.visibility = View.VISIBLE
             account_name.text = blockstackSession().loadUserData()?.profile?.name
             log_out_button.setOnClickListener {
-                blockstackSession().signUserOut()
-                startActivity(Intent(context, LoginActivity::class.java))
+                val alertDialog: AlertDialog? = activity?.let {
+                    val builder = AlertDialog.Builder(it)
+                    builder.setMessage("Are you sure you want to sign out?")
+                    builder.apply {
+                        setPositiveButton(
+                            "Yes"
+                        ) { dialog, id ->
+                            blockstackSession().signUserOut()
+                            startActivity(Intent(context, MainActivity::class.java))
+                        }
+                        setNegativeButton(
+                            "No"
+                        ) { dialog, id ->
+                            // User cancelled the dialog
+                        }
+                    }
+                    builder.create()
+                }
+                alertDialog?.show()
             }
         } else {
             log_in_button.visibility = View.VISIBLE
