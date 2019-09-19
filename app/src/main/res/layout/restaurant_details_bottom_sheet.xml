@@ -19,7 +19,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="#00FFFFFF"
-            android:src="@drawable/ic_favorite_24dp"
+            android:src="@drawable/ic_favorite_border_24dp"
             app:layout_constraintBottom_toBottomOf="@+id/open_restaurant_on_yelp_imageview"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
             app:layout_constraintTop_toTopOf="parent" />

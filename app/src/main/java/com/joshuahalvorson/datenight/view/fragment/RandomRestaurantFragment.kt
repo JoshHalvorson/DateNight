@@ -30,6 +30,7 @@ import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
+import com.joshuahalvorson.datenight.model.SavedRestaurant
 import com.joshuahalvorson.datenight.view.MainActivity
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
@@ -40,10 +41,6 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.content_random_restaurant.*
 import kotlinx.android.synthetic.main.restaurant_details_bottom_sheet.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.blockstack.android.sdk.BlockstackSession
 import org.blockstack.android.sdk.model.GetFileOptions
 import org.blockstack.android.sdk.model.PutFileOptions
@@ -213,7 +210,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setBottomSheetContent(businesses: Businesses) {
-        save_for_later_button.visibility = View.GONE
+        var saved = false
         BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
             BottomSheetBehavior.STATE_COLLAPSED
         mMap.clear()
@@ -253,53 +250,63 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             })
         }
 
+
         if (blockstackSession().isUserSignedIn()) {
             if (!savedRestaurantIds.contains(businesses.id)) {
-                save_for_later_button.visibility = View.VISIBLE
-                save_for_later_button.setOnClickListener {
-                    save_for_later_button.isEnabled = false
-                    if (blockstackSession().isUserSignedIn()) {
-                        updateRemoteSavedRestaurantsList(businesses)
-                        save_for_later_button.visibility = View.GONE
-                        save_for_later_button.isEnabled = true
-                    }
-                }
+                save_for_later_button.setImageDrawable(resources.getDrawable(R.drawable.ic_favorite_border_24dp))
+                saved = false
             } else {
-                save_for_later_button.visibility = View.GONE
+                //in db
+                saved = true
+                save_for_later_button.setImageDrawable(resources.getDrawable(R.drawable.ic_favorite_24dp))
             }
-        } else {
-            GlobalScope.launch(Dispatchers.IO) {
-                var id = ""
-                businesses.id?.let { id = it }
-                val restaurantInRoomRb = db?.savedRestaurantsDao()?.getRestaurantById(id)
-                if (restaurantInRoomRb != null) {
-                    if (restaurantInRoomRb < 1) {
-                        withContext(Dispatchers.Main) {
-                            save_for_later_button.visibility = View.VISIBLE
-                        }
-                        save_for_later_button.setOnClickListener {
-                            save_for_later_button.isEnabled = false
+        }
 
-                            businesses.toSavedRestaurant()?.let { savedRestaurant ->
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    db?.savedRestaurantsDao()?.insertAll(savedRestaurant)
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(
-                                            context,
-                                            "Saved ${businesses.name} for later!",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        save_for_later_button.visibility = View.GONE
-                                        save_for_later_button.isEnabled = true
-                                    }
-                                }
-                            }
-
-                        }
-                    }
+        save_for_later_button.setOnClickListener {
+            Log.i("awdawd", "${save_for_later_button.isEnabled}")
+            if (blockstackSession().isUserSignedIn()) {
+                save_for_later_button.isEnabled = false
+                if (!saved) {
+                    updateRemoteSavedRestaurantsList(businesses)
+                    saved = true
+                } else {
+                    //in db
+                    save_for_later_button.isEnabled = false
+                    saved = false
+                    businesses.toSavedRestaurant()
+                        ?.let { it1 -> removeRestaurantFromRemoteList(it1) }
                 }
             }
         }
+    }
+
+    private fun removeRestaurantFromRemoteList(item: SavedRestaurant) {
+        val putOptions = PutFileOptions()
+        val getOptions = GetFileOptions()
+        blockstackSession().getFile(
+            IDS_FILE_NAME,
+            getOptions
+        ) { getFileResult ->
+            var result = getFileResult.value
+            if (result == null) {
+                result = ""
+            }
+            val list = result.toString().split(",").toMutableList()
+            list.remove(item.id)
+            val listIds = list.joinToString().replace("\\s".toRegex(), "")
+            blockstackSession().putFile(
+                IDS_FILE_NAME, "$listIds", putOptions
+            ) { readURLResult ->
+                if (readURLResult.hasValue) {
+                    Toast.makeText(context, "Removed ${item.name} from saved", Toast.LENGTH_LONG).show()
+                    save_for_later_button.setImageDrawable(resources.getDrawable(R.drawable.ic_favorite_border_24dp))
+                    getRemoteSavedRestaurantsList()
+                } else {
+                    Log.i(RandomRestaurantFragment.TAG + " putFile", readURLResult.error)
+                }
+            }
+        }
+
     }
 
     private fun getRemoteSavedRestaurantsList() {
@@ -311,6 +318,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             }
             savedRestaurantIds.clear()
             savedRestaurantIds.addAll(result.toString().split(","))
+            save_for_later_button.isEnabled = true
         }
     }
 
@@ -333,7 +341,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                                 "Saved ${businesses.name} for later!",
                                 Toast.LENGTH_LONG
                             ).show()
-                            save_for_later_button.isEnabled = true
+                            save_for_later_button.setImageDrawable(resources.getDrawable(R.drawable.ic_favorite_24dp))
                             getRemoteSavedRestaurantsList()
                         }
                     } else {
