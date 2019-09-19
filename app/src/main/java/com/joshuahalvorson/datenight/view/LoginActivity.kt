@@ -44,6 +44,7 @@ class LoginActivity : AppCompatActivity() {
         if (blockstackSession().isUserSignedIn()) {
             val intent = Intent(applicationContext, MainActivity::class.java)
             intent.putExtra("userData", blockstackSession().loadUserData()?.profile?.name)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         } else {
             signInButton.setOnClickListener {
@@ -64,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onSignIn(userData: UserData) {
         val intent = Intent(applicationContext, MainActivity::class.java)
-        intent.putExtra("userData", userData.profile?.email)
+        intent.putExtra("userData", userData.profile?.name)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
     }
