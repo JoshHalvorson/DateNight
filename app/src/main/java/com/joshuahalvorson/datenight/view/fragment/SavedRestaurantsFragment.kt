@@ -165,7 +165,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                     listIds.remove("")
                     GlobalScope.launch(Dispatchers.IO) {
                         listIds.forEach {
-                            Thread.sleep(200)
+                            Thread.sleep(250) //if this isnt here, you get an error for too many requests too quickly
                             yelpViewModel.getRestaurant(it)
                                 ?.subscribeOn(Schedulers.io())
                                 ?.observeOn(AndroidSchedulers.mainThread())
