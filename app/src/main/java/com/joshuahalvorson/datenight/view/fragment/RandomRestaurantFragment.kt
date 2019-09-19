@@ -253,16 +253,19 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             })
         }
 
-        if (blockstackSession().isUserSignedIn() && !savedRestaurantIds.contains(businesses.id)) {
-            save_for_later_button.visibility = View.VISIBLE
-            save_for_later_button.visibility = View.VISIBLE
-            save_for_later_button.setOnClickListener {
-                save_for_later_button.isEnabled = false
-                if (blockstackSession().isUserSignedIn()) {
-                    updateRemoteSavedRestaurantsList(businesses)
-                    save_for_later_button.visibility = View.GONE
-                    save_for_later_button.isEnabled = true
+        if (blockstackSession().isUserSignedIn()) {
+            if (!savedRestaurantIds.contains(businesses.id)) {
+                save_for_later_button.visibility = View.VISIBLE
+                save_for_later_button.setOnClickListener {
+                    save_for_later_button.isEnabled = false
+                    if (blockstackSession().isUserSignedIn()) {
+                        updateRemoteSavedRestaurantsList(businesses)
+                        save_for_later_button.visibility = View.GONE
+                        save_for_later_button.isEnabled = true
+                    }
                 }
+            } else {
+                save_for_later_button.visibility = View.GONE
             }
         } else {
             GlobalScope.launch(Dispatchers.IO) {
