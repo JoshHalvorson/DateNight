@@ -65,6 +65,7 @@ class SettingsFragment : Fragment() {
 
             log_in_button.setOnClickListener {
                 val intent = Intent(context, LoginActivity::class.java)
+                intent.putExtra("from_settings", true)
                 startActivity(intent)
             }
         }

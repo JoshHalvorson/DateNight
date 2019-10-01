@@ -1,6 +1,8 @@
 package com.joshuahalvorson.datenight.view
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -18,7 +20,7 @@ class LoginActivity : AppCompatActivity() {
 
     private var _blockstackSession: BlockstackSession? = null
 
-    private var fromSettings: Boolean = false
+    private lateinit var sharedPrefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,12 +29,22 @@ class LoginActivity : AppCompatActivity() {
         val config = "https://joshhalvorson.github.io/blockstack-android-web-app/public/"
             .toBlockstackConfig(arrayOf(org.blockstack.android.sdk.Scope.StoreWrite))
 
+        sharedPrefs = getSharedPreferences("shared-prefs", Context.MODE_PRIVATE)
+
         _blockstackSession = BlockstackSession(this@LoginActivity, config)
         signInButton.isEnabled = true
+        var fromSettings = false
+        intent?.let { intent ->
+            intent.extras?.let { extras ->
+                fromSettings = extras.getBoolean("from_settings")
+            }
+        }
 
         continue_as_guest_button.setOnClickListener {
             progressBar.visibility = View.VISIBLE
             cardView.visibility = View.GONE
+            // set signed in as guest in shared prefs
+            sharedPrefs.edit()?.putBoolean("logged_in_as_guest", true)?.apply()
             startActivity(
                 Intent(
                     applicationContext,
@@ -47,11 +59,18 @@ class LoginActivity : AppCompatActivity() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
         } else {
-            signInButton.setOnClickListener {
-                blockstackSession().redirectUserToSignIn { errorResult ->
-                    if (errorResult.hasErrors) {
-                        Toast.makeText(this, "error: " + errorResult.error, Toast.LENGTH_SHORT)
-                            .show()
+            //if signed in as guest, continue
+            if (sharedPrefs.getBoolean("logged_in_as_guest", false) && !fromSettings) {
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+            } else {
+                signInButton.setOnClickListener {
+                    blockstackSession().redirectUserToSignIn { errorResult ->
+                        if (errorResult.hasErrors) {
+                            Toast.makeText(this, "error: " + errorResult.error, Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     }
                 }
             }
@@ -67,6 +86,8 @@ class LoginActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra("userData", userData.profile?.name)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        // if shared prefs has guest signed in, sign it out
+        sharedPrefs.edit().putBoolean("logged_in_as_guest", false).apply()
         startActivity(intent)
     }
 
