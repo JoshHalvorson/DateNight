@@ -179,18 +179,20 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         restaurant_image_progress_circle.visibility = View.VISIBLE
         val index = Random.nextInt(0, restaurantsList.size - 1)
         if (lastIndex != index) {
-            Picasso.get()
-                .load(restaurantsList[index].image_url)
-                .noFade()
-                .into(restaurant_image, object : Callback {
-                    override fun onSuccess() {
-                        restaurant_image_progress_circle.visibility = View.GONE
-                    }
+            if (restaurant_image != null) {
+                Picasso.get()
+                    .load(restaurantsList[index].image_url)
+                    .noFade()
+                    .into(restaurant_image, object : Callback {
+                        override fun onSuccess() {
+                            restaurant_image_progress_circle.visibility = View.GONE
+                        }
 
-                    override fun onError(e: Exception?) {
-                        Log.i(TAG + " picasso", e?.localizedMessage)
-                    }
-                })
+                        override fun onError(e: Exception?) {
+                            Log.i(TAG + " picasso", e?.localizedMessage)
+                        }
+                    })
+            }
             restaurant_name.text = restaurantsList[index].name
             restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)}"
             restaurant_price.text =
