@@ -17,6 +17,8 @@ android {
         versionName "2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "api_key", localProperties['yelp_key']
+        buildConfigField "String", "google_maps_key", localProperties['google_maps_key']
+        resValue 'string', "maps_key", localProperties['google_maps_key']
     }
     buildTypes {
         release {
