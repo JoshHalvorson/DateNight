@@ -12,8 +12,8 @@ class YelpViewModel(private var yelpRepository: YelpRepository) : ViewModel() {
 
     private lateinit var restaurantsList: MutableLiveData<ResponseBase>
 
-    fun getLocalRestaurants(type: String, lat: Double, lon: Double): Observable<ResponseBase>? {
-        return yelpRepository.getLocalRestaurantData(type, lat, lon)
+    fun getLocalRestaurants(offset: Int, lat: Double, lon: Double): Observable<ResponseBase>? {
+        return yelpRepository.getLocalRestaurantData(offset, lat, lon)
     }
 
     fun getRestaurantReviews(id: String): MutableLiveData<ReviewResponse> {

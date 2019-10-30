@@ -156,8 +156,9 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         getRemoteSavedRestaurantsList()
         disposable = deviceLocation?.latitude?.let { lat ->
             deviceLocation?.longitude?.let { lon ->
+                var done = false
                 yelpViewModel.getLocalRestaurants(
-                    "restaurant",
+                    0,
                     lat,
                     lon
                 )
@@ -165,7 +166,28 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     ?.observeOn(AndroidSchedulers.mainThread())
                     ?.subscribe({ list ->
                         restaurantsList.addAll(list.businesses)
-                        displayRestaurant()
+                        if (!done) {
+                            displayRestaurant()
+                            done = true
+                        }
+                    },
+                        { error ->
+                            Log.i(TAG + " getRest", error.message)
+                        }
+                    )
+                yelpViewModel.getLocalRestaurants(
+                    50,
+                    lat,
+                    lon
+                )
+                    ?.subscribeOn(Schedulers.io())
+                    ?.observeOn(AndroidSchedulers.mainThread())
+                    ?.subscribe({ list ->
+                        restaurantsList.addAll(list.businesses)
+                        if (!done) {
+                            displayRestaurant()
+                            done = true
+                        }
                     },
                         { error ->
                             Log.i(TAG + " getRest", error.message)
