@@ -113,7 +113,7 @@ class LoginActivity : AppCompatActivity() {
         cardView.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
         authenticating_text.visibility = View.VISIBLE
-        val response = intent.data.query
+        val response = intent.data?.query
         signInButton.isEnabled = false
         continue_as_guest_button.isEnabled = false
         Log.d(TAG, "response ${response}")
