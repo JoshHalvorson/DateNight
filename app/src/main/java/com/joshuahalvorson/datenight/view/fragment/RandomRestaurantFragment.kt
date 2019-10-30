@@ -73,6 +73,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     private var savedRestaurantIds: ArrayList<String> = arrayListOf()
     private var mLocationRequest: LocationRequest? = null
     private var locationCallback: LocationCallback? = null
+    private var restaurantHistory: ArrayList<Businesses> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -228,6 +229,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
             restaurant_price.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
             restaurant_rating.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
             restaurant_image.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+            restaurantHistory.add(restaurantsList[index])
+            Log.i("restaurantHistory", restaurantHistory.size.toString())
             lastIndex = index
             if (restaurant_card.visibility == View.GONE) {
                 animateRestaurantCardIn()
