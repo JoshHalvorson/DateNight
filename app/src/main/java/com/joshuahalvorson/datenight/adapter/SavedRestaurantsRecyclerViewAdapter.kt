@@ -8,12 +8,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.loadRatingImageWithPicasso
-import com.joshuahalvorson.datenight.model.Businesses
+import com.joshuahalvorson.datenight.model.SavedRestaurant
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.saved_restaurant_list_item.view.*
 
-class RestaurantsViewedHistoryListAdapter(private val restaurants: List<Businesses>, private val callback: OnListItemClick) :
-    RecyclerView.Adapter<RestaurantsViewedHistoryListAdapter.ViewHolder>() {
+class SavedRestaurantsRecyclerViewAdapter(
+    private val restaurants: ArrayList<SavedRestaurant>,
+    private val callback: OnListItemClick
+) : RecyclerView.Adapter<SavedRestaurantsRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): ViewHolder {
         return ViewHolder(
@@ -34,7 +36,7 @@ class RestaurantsViewedHistoryListAdapter(private val restaurants: List<Business
         private val restaurantRating: ImageView = itemView.saved_restaurant_rating
         private val restaurantImage: ImageView = itemView.saved_restaurant_image
 
-        fun bindModel(restaurant: Businesses, callback: OnListItemClick) {
+        fun bindModel(restaurant: SavedRestaurant, callback: OnListItemClick) {
             itemView.setOnClickListener { callback.onListItemClick(restaurant) }
             restaurantName.text = restaurant.name
             restaurantPrice.text = restaurant.price
@@ -48,6 +50,6 @@ class RestaurantsViewedHistoryListAdapter(private val restaurants: List<Business
     }
 
     interface OnListItemClick {
-        fun onListItemClick(restaurant: Businesses?)
+        fun onListItemClick(restaurant: SavedRestaurant?)
     }
 }

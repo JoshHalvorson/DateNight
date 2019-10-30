@@ -23,8 +23,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.joshuahalvorson.datenight.*
-import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
-import com.joshuahalvorson.datenight.adapter.SavedRestaurantsListAdapter
+import com.joshuahalvorson.datenight.adapter.RestaurantReviewsRecyclerViewAdapter
+import com.joshuahalvorson.datenight.adapter.SavedRestaurantsRecyclerViewAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
@@ -97,9 +97,9 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
 
     private fun displayRestaurants() {
         val savedRestaurants = arrayListOf<SavedRestaurant>()
-        val adapter = SavedRestaurantsListAdapter(
+        val adapter = SavedRestaurantsRecyclerViewAdapter(
             savedRestaurants,
-            object : SavedRestaurantsListAdapter.OnListItemClick {
+            object : SavedRestaurantsRecyclerViewAdapter.OnListItemClick {
                 override fun onListItemClick(restaurant: SavedRestaurant?) {
                     restaurant?.id?.let { id -> getRestaurant(id) }
                     BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
@@ -198,7 +198,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun removeRestaurantFromRemoteList(
-        adapter: SavedRestaurantsListAdapter,
+        adapter: SavedRestaurantsRecyclerViewAdapter,
         savedRestaurants: ArrayList<SavedRestaurant>,
         item: SavedRestaurant
     ) {
@@ -287,7 +287,7 @@ class SavedRestaurantsFragment : Fragment(), OnMapReadyCallback {
                     if (response != null) {
                         layoutManager = LinearLayoutManager(context)
                         response.reviews?.let { reviews ->
-                            adapter = RestaurantReviewsListAdapter(reviews)
+                            adapter = RestaurantReviewsRecyclerViewAdapter(reviews)
                         }
                     }
                 }

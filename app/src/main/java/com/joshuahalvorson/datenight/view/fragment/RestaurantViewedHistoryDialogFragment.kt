@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.joshuahalvorson.datenight.R
-import com.joshuahalvorson.datenight.adapter.RestaurantsViewedHistoryListAdapter
+import com.joshuahalvorson.datenight.adapter.RestaurantsViewedHistoryRecyclerViewAdapter
 import com.joshuahalvorson.datenight.model.Businesses
 import kotlinx.android.synthetic.main.fragment_restaurant_viewed_history_dialog.*
 import android.view.WindowManager
@@ -18,7 +18,7 @@ class RestaurantViewedHistoryDialogFragment : DialogFragment() {
     private var restaurants: List<Businesses> = listOf()
     var onResult: ((restaurant: Businesses) -> Unit)? = null
 
-    private lateinit var adapter: RestaurantsViewedHistoryListAdapter
+    private lateinit var adapter: RestaurantsViewedHistoryRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +49,7 @@ class RestaurantViewedHistoryDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = RestaurantsViewedHistoryListAdapter(restaurants, object: RestaurantsViewedHistoryListAdapter.OnListItemClick {
+        adapter = RestaurantsViewedHistoryRecyclerViewAdapter(restaurants, object: RestaurantsViewedHistoryRecyclerViewAdapter.OnListItemClick {
             override fun onListItemClick(restaurant: Businesses?) {
                 restaurant?.let { onResult?.invoke(it) }
                 dismiss()

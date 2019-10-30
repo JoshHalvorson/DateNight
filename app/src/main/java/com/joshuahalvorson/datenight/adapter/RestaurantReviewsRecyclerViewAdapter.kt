@@ -12,8 +12,8 @@ import com.joshuahalvorson.datenight.model.Review
 import com.joshuahalvorson.datenight.openUrlOnClick
 import kotlinx.android.synthetic.main.restaurant_reviews_list_item.view.*
 
-class RestaurantReviewsListAdapter(private val reviews: List<Review>) :
-    RecyclerView.Adapter<RestaurantReviewsListAdapter.ViewHolder>() {
+class RestaurantReviewsRecyclerViewAdapter(private val reviews: List<Review>) :
+    RecyclerView.Adapter<RestaurantReviewsRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): ViewHolder {
         return ViewHolder(

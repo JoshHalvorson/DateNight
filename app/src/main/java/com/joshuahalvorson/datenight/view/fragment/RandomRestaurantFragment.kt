@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.joshuahalvorson.datenight.*
 import com.joshuahalvorson.datenight.R
-import com.joshuahalvorson.datenight.adapter.RestaurantReviewsListAdapter
+import com.joshuahalvorson.datenight.adapter.RestaurantReviewsRecyclerViewAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
@@ -293,7 +293,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 bottom_sheet_restaurant_reviews.apply {
                     layoutManager = LinearLayoutManager(context)
                     response?.let { response ->
-                        adapter = response.reviews?.let { RestaurantReviewsListAdapter(it) }
+                        adapter = response.reviews?.let { RestaurantReviewsRecyclerViewAdapter(it) }
                     }
                 }
             })
