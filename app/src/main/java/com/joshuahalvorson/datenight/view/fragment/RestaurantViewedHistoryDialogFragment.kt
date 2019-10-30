@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-
 import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.adapter.RestaurantsViewedHistoryListAdapter
 import com.joshuahalvorson.datenight.model.Businesses
 import kotlinx.android.synthetic.main.fragment_restaurant_viewed_history_dialog.*
+import android.view.WindowManager
 
 private const val RESTAURANT_HISTORY = "restaurant_history"
 
@@ -38,6 +38,14 @@ class RestaurantViewedHistoryDialogFragment : DialogFragment() {
             container,
             false
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val params = dialog?.window?.attributes
+        params?.width = WindowManager.LayoutParams.MATCH_PARENT
+        params?.height = WindowManager.LayoutParams.MATCH_PARENT
+        dialog?.window?.attributes = params as WindowManager.LayoutParams
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

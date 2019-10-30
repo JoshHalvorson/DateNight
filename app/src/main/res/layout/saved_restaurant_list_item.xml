@@ -30,11 +30,12 @@
 
             <TextView
                 android:id="@+id/saved_restaurant_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
                 android:text="TextView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/saved_restaurant_image"
                 app:layout_constraintTop_toTopOf="parent" />
 
