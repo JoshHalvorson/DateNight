@@ -128,9 +128,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setViewedRestaurantHistoryButton() {
-        //TODO("When pressed, open dialog with recyclerview/list of past viewed restaurants. When one is selected, set bottomsheet and card content to selected restaurant")
         show_retuarants_viewed_history.setOnClickListener {
-            //fragmentManager?.let { RestaurantViewedHistoryDialogFragment().show(it, "viewed_history") }
             val dialog = RestaurantViewedHistoryDialogFragment.newInstance(restaurantHistory)
             dialog.onResult = {
                 Log.i("selectedRestaurant", it.name)
