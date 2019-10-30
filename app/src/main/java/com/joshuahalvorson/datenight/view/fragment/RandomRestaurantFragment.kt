@@ -254,6 +254,17 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         restaurant_price.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
         restaurant_rating.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
         restaurant_image.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+        if (restaurant_categories != null) {
+            restaurant_categories.text = ""
+            var categories = 0
+            restaurant.categories?.size?.let {
+                categories = it
+            }
+            for (i in 0 until categories) {
+                restaurant_categories.text =
+                    "${restaurant_categories.text}${restaurant.categories?.get(i)?.title} \n"
+            }
+        }
         restaurantHistory.add(restaurant)
         Log.i("restaurantHistory", restaurantHistory.size.toString())
 
