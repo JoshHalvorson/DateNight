@@ -28,6 +28,9 @@ import com.joshuahalvorson.datenight.adapter.SavedRestaurantsRecyclerViewAdapter
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
+import com.joshuahalvorson.datenight.util.SwipeToDeleteCallback
+import com.joshuahalvorson.datenight.util.openUrlOnClick
+import com.joshuahalvorson.datenight.util.toSavedRestaurant
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers

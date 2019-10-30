@@ -31,6 +31,10 @@ import com.joshuahalvorson.datenight.adapter.RestaurantReviewsRecyclerViewAdapte
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
+import com.joshuahalvorson.datenight.util.animateViewWithYoYo
+import com.joshuahalvorson.datenight.util.loadRatingImageWithPicasso
+import com.joshuahalvorson.datenight.util.openUrlOnClick
+import com.joshuahalvorson.datenight.util.toSavedRestaurant
 import com.joshuahalvorson.datenight.view.MainActivity
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory

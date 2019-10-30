@@ -1,4 +1,4 @@
-package com.joshuahalvorson.datenight
+package com.joshuahalvorson.datenight.util
 
 import android.content.SharedPreferences
 

@@ -1,4 +1,4 @@
-package com.joshuahalvorson.datenight
+package com.joshuahalvorson.datenight.util
 
 import android.content.Context
 import android.graphics.*
@@ -6,12 +6,15 @@ import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.joshuahalvorson.datenight.R
 
 // https://github.com/kitek/android-rv-swipe-delete/blob/master/app/src/main/java/pl/kitek/rvswipetodelete/SwipeToDeleteCallback.kt
 abstract class SwipeToDeleteCallback(context: Context) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_white_24dp)
+    private val deleteIcon = ContextCompat.getDrawable(context,
+        R.drawable.ic_delete_white_24dp
+    )
     private val intrinsicWidth = deleteIcon!!.intrinsicWidth
     private val intrinsicHeight = deleteIcon!!.intrinsicHeight
     private val background = ColorDrawable()

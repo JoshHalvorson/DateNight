@@ -1,4 +1,4 @@
-package com.joshuahalvorson.datenight
+package com.joshuahalvorson.datenight.util
 
 import android.content.Context
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat.startActivity
 import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
+import com.joshuahalvorson.datenight.R
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
 import com.squareup.picasso.Picasso

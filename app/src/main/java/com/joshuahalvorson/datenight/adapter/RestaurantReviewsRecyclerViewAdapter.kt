@@ -7,9 +7,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.joshuahalvorson.datenight.R
-import com.joshuahalvorson.datenight.loadRatingImageWithPicasso
+import com.joshuahalvorson.datenight.util.loadRatingImageWithPicasso
 import com.joshuahalvorson.datenight.model.Review
-import com.joshuahalvorson.datenight.openUrlOnClick
+import com.joshuahalvorson.datenight.util.openUrlOnClick
 import kotlinx.android.synthetic.main.restaurant_reviews_list_item.view.*
 
 class RestaurantReviewsRecyclerViewAdapter(private val reviews: List<Review>) :

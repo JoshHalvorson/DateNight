@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.joshuahalvorson.datenight.R
-import com.joshuahalvorson.datenight.loadRatingImageWithPicasso
+import com.joshuahalvorson.datenight.util.loadRatingImageWithPicasso
 import com.joshuahalvorson.datenight.model.Businesses
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.saved_restaurant_list_item.view.*
