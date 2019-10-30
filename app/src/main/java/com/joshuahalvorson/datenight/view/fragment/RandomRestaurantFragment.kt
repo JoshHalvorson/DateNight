@@ -54,6 +54,7 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
+
     companion object {
         const val IDS_FILE_NAME = "saved_res_ids.txt"
         const val TAG = "RandomRestFrag"
@@ -111,8 +112,9 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         getLocation()
 
         new_restaurant_button.setOnClickListener {
-            displayRestaurant()
+            getRestaurantToDisplay()
         }
+        setViewedRestaurantHistoryButton()
 
         show_restaurant_info.setOnClickListener {
             if (BottomSheetBehavior.from(bottom_sheet_restaurant_details).state == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -122,6 +124,19 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 BottomSheetBehavior.from(bottom_sheet_restaurant_details).state =
                     BottomSheetBehavior.STATE_COLLAPSED
             }
+        }
+    }
+
+    private fun setViewedRestaurantHistoryButton() {
+        //TODO("When pressed, open dialog with recyclerview/list of past viewed restaurants. When one is selected, set bottomsheet and card content to selected restaurant")
+        show_retuarants_viewed_history.setOnClickListener {
+            //fragmentManager?.let { RestaurantViewedHistoryDialogFragment().show(it, "viewed_history") }
+            val dialog = RestaurantViewedHistoryDialogFragment.newInstance(restaurantHistory)
+            dialog.onResult = {
+                Log.i("selectedRestaurant", it.name)
+                displayRestaurant(it)
+            }
+            dialog.show(childFragmentManager, "dialog")
         }
     }
 
@@ -168,7 +183,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     ?.subscribe({ list ->
                         restaurantsList.addAll(list.businesses)
                         if (!done) {
-                            displayRestaurant()
+                            getRestaurantToDisplay()
                             done = true
                         }
                     },
@@ -186,7 +201,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     ?.subscribe({ list ->
                         restaurantsList.addAll(list.businesses)
                         if (!done) {
-                            displayRestaurant()
+                            getRestaurantToDisplay()
                             done = true
                         }
                     },
@@ -198,45 +213,50 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun displayRestaurant() {
+    private fun getRestaurantToDisplay() {
         restaurant_image_progress_circle.visibility = View.VISIBLE
         val index = Random.nextInt(0, restaurantsList.size - 1)
         if (lastIndex != index) {
-            if (restaurant_image != null) {
-                Picasso.get()
-                    .load(restaurantsList[index].image_url)
-                    .noFade()
-                    .into(restaurant_image, object : Callback {
-                        override fun onSuccess() {
-                            restaurant_image_progress_circle.visibility = View.GONE
-                        }
-
-                        override fun onError(e: Exception?) {
-                            Log.i(TAG + " picasso", e?.localizedMessage)
-                        }
-                    })
-            }
-            restaurant_name.text = restaurantsList[index].name
-            restaurant_location.text = "${restaurantsList[index].location?.display_address?.get(0)}"
-            restaurant_price.text =
-                if (restaurantsList[index].price == null) "No price given" else "${restaurantsList[index].price}"
-            num_ratings.text = "Based on ${restaurantsList[index].review_count} reviews"
-            restaurantsList[index].rating?.let { restaurant_rating.loadRatingImageWithPicasso(it) }
-            setBottomSheetContent(restaurantsList[index])
-            bottom_sheet_restaurant_details.animateViewWithYoYo(Techniques.SlideInUp, 500, 0)
-            restaurant_name.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
-            restaurant_location.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
-            restaurant_price.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
-            restaurant_rating.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
-            restaurant_image.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
-            restaurantHistory.add(restaurantsList[index])
-            Log.i("restaurantHistory", restaurantHistory.size.toString())
+            displayRestaurant(restaurantsList[index])
             lastIndex = index
-            if (restaurant_card.visibility == View.GONE) {
-                animateRestaurantCardIn()
-            }
         } else {
-            displayRestaurant()
+            getRestaurantToDisplay()
+        }
+    }
+
+    private fun displayRestaurant(restaurant: Businesses) {
+        if (restaurant_image != null) {
+            Picasso.get()
+                .load(restaurant.image_url)
+                .noFade()
+                .into(restaurant_image, object : Callback {
+                    override fun onSuccess() {
+                        restaurant_image_progress_circle.visibility = View.GONE
+                    }
+
+                    override fun onError(e: Exception?) {
+                        Log.i(TAG + " picasso", e?.localizedMessage)
+                    }
+                })
+        }
+        restaurant_name.text = restaurant.name
+        restaurant_location.text = "${restaurant.location?.display_address?.get(0)}"
+        restaurant_price.text =
+            if (restaurant.price == null) "No price given" else "${restaurant.price}"
+        num_ratings.text = "Based on ${restaurant.review_count} reviews"
+        restaurant.rating?.let { restaurant_rating.loadRatingImageWithPicasso(it) }
+        setBottomSheetContent(restaurant)
+        bottom_sheet_restaurant_details.animateViewWithYoYo(Techniques.SlideInUp, 500, 0)
+        restaurant_name.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+        restaurant_location.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+        restaurant_price.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+        restaurant_rating.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+        restaurant_image.animateViewWithYoYo(Techniques.FadeIn, 500, 0)
+        restaurantHistory.add(restaurant)
+        Log.i("restaurantHistory", restaurantHistory.size.toString())
+
+        if (restaurant_card.visibility == View.GONE) {
+            animateRestaurantCardIn()
         }
     }
 
@@ -280,7 +300,6 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 }
             })
         }
-
 
         if (blockstackSession().isUserSignedIn()) {
             if (!savedRestaurantIds.contains(businesses.id)) {
@@ -354,7 +373,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                         GlobalScope.launch(Dispatchers.IO) {
                             db?.savedRestaurantsDao()?.deleteRestaurantById(savedRestaurant.id)
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Removed ${savedRestaurant.name} from saved", Toast.LENGTH_LONG)
+                                Toast.makeText(
+                                    context,
+                                    "Removed ${savedRestaurant.name} from saved",
+                                    Toast.LENGTH_LONG
+                                )
                                     .show()
                                 save_for_later_button.setImageDrawable(resources.getDrawable(R.drawable.ic_favorite_border_24dp))
                                 saved = false
