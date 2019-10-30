@@ -151,6 +151,18 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/guideline9" />
 
+            <ImageButton
+                android:id="@+id/show_retuarants_viewed_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_watch_later_black_24dp"
+                app:layout_constraintBottom_toBottomOf="@+id/show_restaurant_info"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/show_restaurant_info"
+                app:layout_constraintVertical_bias="1.0" />
+
             <TextView
                 android:id="@+id/restaurant_name"
                 android:layout_width="0dp"
