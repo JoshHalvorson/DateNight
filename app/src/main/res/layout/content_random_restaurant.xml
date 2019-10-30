@@ -167,12 +167,13 @@
                 android:id="@+id/restaurant_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toStartOf="@+id/show_restaurant_info"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/show_retuarants_viewed_history"
                 app:layout_constraintTop_toTopOf="@+id/guideline9" />
 
             <TextView
