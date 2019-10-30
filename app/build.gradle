@@ -13,8 +13,8 @@ android {
         applicationId "com.joshuahalvorson.datenight"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 10
-        versionName "2.6"
+        versionCode 11
+        versionName "2.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "api_key", localProperties['yelp_key']
         buildConfigField "String", "google_maps_key", localProperties['google_maps_key']
