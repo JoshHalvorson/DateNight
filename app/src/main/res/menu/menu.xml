@@ -4,4 +4,7 @@
         android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings_24dp"
         android:title="Settings" />
+    <item
+        android:id="@+id/categories"
+        android:title="Categories" />
 </menu>
