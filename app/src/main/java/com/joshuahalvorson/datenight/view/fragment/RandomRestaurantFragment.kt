@@ -2,6 +2,7 @@ package com.joshuahalvorson.datenight.view.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
@@ -31,10 +32,7 @@ import com.joshuahalvorson.datenight.adapter.RestaurantReviewsRecyclerViewAdapte
 import com.joshuahalvorson.datenight.database.RestaurantDatabase
 import com.joshuahalvorson.datenight.model.Businesses
 import com.joshuahalvorson.datenight.model.SavedRestaurant
-import com.joshuahalvorson.datenight.util.animateViewWithYoYo
-import com.joshuahalvorson.datenight.util.loadRatingImageWithPicasso
-import com.joshuahalvorson.datenight.util.openUrlOnClick
-import com.joshuahalvorson.datenight.util.toSavedRestaurant
+import com.joshuahalvorson.datenight.util.*
 import com.joshuahalvorson.datenight.view.MainActivity
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModel
 import com.joshuahalvorson.datenight.viewmodel.YelpViewModelFactory
@@ -68,6 +66,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     lateinit var yelpViewModelFactory: YelpViewModelFactory
     private lateinit var yelpViewModel: YelpViewModel
     private lateinit var mMap: GoogleMap
+    private lateinit var sharedPrefsHelper: SharedPrefsHelper
 
     private var _blockstackSession: BlockstackSession? = null
     private var disposable: Disposable? = null
@@ -79,6 +78,7 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     private var mLocationRequest: LocationRequest? = null
     private var locationCallback: LocationCallback? = null
     private var restaurantHistory: ArrayList<Businesses> = arrayListOf()
+    private var categoriesCSV = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -89,6 +89,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        sharedPrefsHelper = SharedPrefsHelper(context?.getSharedPreferences(
+            SharedPrefsHelper.PREFERENCE_FILE_KEY, Context.MODE_PRIVATE))
+        getCategories()
+
         App.app.yelpComponent.inject(this)
         yelpViewModel =
             ViewModelProviders.of(this, yelpViewModelFactory).get(YelpViewModel::class.java)
@@ -142,6 +146,10 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    private fun getCategories() {
+        sharedPrefsHelper.get(SharedPrefsHelper.CATEGORIES_CSV_KEY, "")?.let { categoriesCSV = it }
+    }
+
     private fun setUpLocationUpdates() {
         mLocationRequest = LocationRequest()
         mLocationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -178,7 +186,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 yelpViewModel.getLocalRestaurants(
                     0,
                     lat,
-                    lon
+                    lon,
+                    categoriesCSV
                 )
                     ?.subscribeOn(Schedulers.io())
                     ?.observeOn(AndroidSchedulers.mainThread())
@@ -196,7 +205,8 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                 yelpViewModel.getLocalRestaurants(
                     50,
                     lat,
-                    lon
+                    lon,
+                    categoriesCSV
                 )
                     ?.subscribeOn(Schedulers.io())
                     ?.observeOn(AndroidSchedulers.mainThread())
