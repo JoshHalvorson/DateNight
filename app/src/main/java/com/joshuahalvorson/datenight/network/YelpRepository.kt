@@ -19,7 +19,7 @@ class YelpRepository(application: Application) {
     private var reviewResponse = MutableLiveData<ReviewResponse>()
     private var businessResponse = MutableLiveData<Businesses>()
 
-    fun getLocalRestaurantData(offset: Int, lat: Double, lon: Double): Observable<ResponseBase>? {
+    fun getLocalRestaurantData(offset: Int, lat: Double, lon: Double, categories: String): Observable<ResponseBase>? {
         /*val call =
             yelpApiService?.getLocalRestaurants(BuildConfig.api_key, type, lat, lon, 50)
         call?.enqueue(object : Callback<ResponseBase> {
@@ -31,7 +31,7 @@ class YelpRepository(application: Application) {
                 responseBase.postValue(response.body())
             }
         })*/
-        return yelpApiService?.getLocalRestaurants(BuildConfig.api_key, "restaurant", lat, lon, 50, offset)
+        return yelpApiService?.getLocalRestaurants(BuildConfig.api_key, "restaurant", lat, lon, 50, offset, categories)
     }
 
     fun getRestaurantReviews(id: String): MutableLiveData<ReviewResponse> {

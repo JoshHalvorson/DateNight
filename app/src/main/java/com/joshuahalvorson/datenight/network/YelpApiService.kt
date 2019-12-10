@@ -19,7 +19,8 @@ interface YelpApiService {
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
         @Query("limit") limit: Int,
-        @Query("offset") offset: Int
+        @Query("offset") offset: Int,
+        @Query("categories") categories: String
     ): Observable<ResponseBase>
 
     @GET("businesses/{id}/reviews")
