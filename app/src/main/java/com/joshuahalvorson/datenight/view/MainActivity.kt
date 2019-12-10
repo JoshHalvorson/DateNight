@@ -17,6 +17,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.facebook.stetho.Stetho
 import com.google.android.material.navigation.NavigationView
 import com.joshuahalvorson.datenight.R
+import com.joshuahalvorson.datenight.view.fragment.CategoriesPickerDialogFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 
@@ -77,6 +78,13 @@ class MainActivity : AppCompatActivity(), AppBarConfiguration.OnNavigateUpListen
             android.R.id.home ->
                 drawer_layout.openDrawer(GravityCompat.START)
             R.id.settingsFragment -> findNavController(R.id.nav_host_fragment).navigate(R.id.settingsFragment)
+            R.id.categories -> {
+                val dialog = CategoriesPickerDialogFragment()
+                dialog.onResult = { categories ->
+                    findNavController(R.id.nav_host_fragment).navigate(R.id.randomRestaurantFragment)
+                }
+                dialog.show(supportFragmentManager, "category_picker")
+            }
         }
         if (item != null) {
             return item.onNavDestinationSelected(findNavController(R.id.nav_host_fragment))
