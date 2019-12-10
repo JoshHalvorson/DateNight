@@ -4,9 +4,8 @@ import android.content.SharedPreferences
 
 class SharedPrefsHelper(private val sharedPrefs: SharedPreferences?) {
     companion object {
-        const val PREFERENCE_FILE_KEY = "saved_restaurants"
-        const val RESTAURANT_ID_KEY = "restaurant_id"
-        const val RESTAURANT_NAME_KEY = "restaurant_name"
+        const val PREFERENCE_FILE_KEY = "restaurant_categories"
+        const val CATEGORIES_CSV_KEY = "categories"
     }
 
     fun put(key: String, value: String?) {
