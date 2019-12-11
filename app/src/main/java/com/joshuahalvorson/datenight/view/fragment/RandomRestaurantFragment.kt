@@ -194,6 +194,9 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     ?.subscribe({ list ->
                         restaurantsList.addAll(list.businesses)
                         if (!done) {
+                            if (restaurantsList.size == 0 && list.businesses.isEmpty()) {
+                                displayNoRestaurants()
+                            }
                             getRestaurantToDisplay()
                             done = true
                         }
@@ -213,6 +216,9 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
                     ?.subscribe({ list ->
                         restaurantsList.addAll(list.businesses)
                         if (!done) {
+                            if (restaurantsList.size == 0 && list.businesses.isEmpty()) {
+                                displayNoRestaurants()
+                            }
                             getRestaurantToDisplay()
                             done = true
                         }
@@ -234,6 +240,11 @@ class RandomRestaurantFragment : Fragment(), OnMapReadyCallback {
         } else {
             getRestaurantToDisplay()
         }
+    }
+
+    private fun displayNoRestaurants() {
+        progress_circle.visibility = View.GONE
+        Toast.makeText(context, "No restaurants found with these categories", Toast.LENGTH_LONG).show()
     }
 
     private fun displayRestaurant(restaurant: Businesses) {
